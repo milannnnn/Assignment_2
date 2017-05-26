@@ -1,4 +1,4 @@
-package assignment2;
+package assignment2_milan;
 
 import java.util.ArrayList;
 
@@ -134,14 +134,4 @@ public class SystemState {
 		return vals;
 	}
 	
-	public void printValues(){
-		for(int k=0; k<buses.size(); k++){
-			System.out.print(buses.get(k).angle  +"\t");
-			System.out.print(buses.get(k).voltage);
-			if(k!=(buses.size()-1)){
-				System.out.print("\t");
-			}
-		}
-		System.out.print("\n");
-	}
 }
