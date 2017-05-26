@@ -42,8 +42,8 @@ public class Kmean {
 					double minDistance = 1e9;
 					// extract values of ii-th state
 					// ######
-//					double[] values = SystemList.get(ii).values;
-					double[] values = new double[18];
+					double[] values = SystemList.get(ii).values();
+//					double[] values = new double[18];
 					// ######
 					// i is the number of the cluster
 					for(int i=0; i<k; i++ ){
@@ -93,9 +93,9 @@ public class Kmean {
 			int ranNum = bowl.get(ranNumindex);
 			// add the ranNum number element to centroid
 			// ######
-	//		double[] newValueSet = SystemList.get(ranNum).values;
+			double[] newValueSet = SystemList.get(ranNum).values();
 			// ######
-			double[] newValueSet = new double[18];
+//			double[] newValueSet = new double[18];
 			Centroid.add(newValueSet);
 			// remove the number from the bowl
 			bowl.remove(ranNumindex);
@@ -156,9 +156,9 @@ public class Kmean {
 			double[] mean = new double[18];
 			for(int i=0; i<clusterElements.size();i++){
 				// #####
-//				double[] values = clusterElements.get(i).values;
+				double[] newValues = clusterElements.get(i).values();
 				// #####
-				double[] newValues = new double[18];
+//				double[] newValues = new double[18];
 				mean = ArraySum(newValues,mean,'+');
 			}
 			for(int i=0; i<mean.length;i++){
