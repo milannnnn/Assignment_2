@@ -10,7 +10,8 @@ public class test {
 		FillStates fillings = new FillStates();
 		ArrayList<SystemState> allStates = fillings.getStates("root", "Callandor14", "measurements");
 		for(int k=0; k<allStates.size(); k++){
-			System.out.println(allStates.get(k).values()[1]);
+
+		System.out.println(allStates.get(k).values()[1]);
 		}
 		
 	}
