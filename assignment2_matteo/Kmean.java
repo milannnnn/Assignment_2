@@ -117,6 +117,7 @@ public class Kmean {
 			// remove the number from the bowl
 			bowl.remove(ranNumindex);
 		}
+		
 		return Centroid;
 	}
 	// ##################################################################################
@@ -137,7 +138,13 @@ public class Kmean {
 		Random rand = new Random();
 		for(int i=0; i<SystemList.size();i++){
 			int  ranNumindex = rand.nextInt(bowl.size());
-			int  ranNClusindex = rand.nextInt(k);
+//			int  ranNClusindex = rand.nextInt(k);
+			int  ranNClusindex = 0 ;
+			for(int ii=0; ii<k; ii++){
+				if(i <= (SystemList.size()/(k)+ii)){
+					ranNClusindex=ii;
+				}
+			}
 			System.out.println("random cluster index " + ranNClusindex);
 			// insert the ranNumindex element from SystemList to the ranNClusindex Cluster
 			Clusters.get(ranNClusindex).add(SystemList.get(ranNumindex));
@@ -151,6 +158,7 @@ public class Kmean {
 			}
 			System.out.println();
 		}
+		System.out.println("Successfully initialized with random partition method!");
 		return Centroid;
 	}
 	

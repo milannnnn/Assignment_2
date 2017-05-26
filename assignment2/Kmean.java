@@ -23,7 +23,7 @@ public class Kmean {
 	
 	// ##################################################################################
 	
-	public static ArrayList<ArrayList<SystemState>> kMeanClustering(int k) {
+	public static ArrayList<ArrayList<SystemState>> kMeanClustering(int k, String initMethod) {
 			
 			// arbitrarily assign centroids from within the dataset
 			// create an arrayList of clusters, which are arraylists of SystemState
@@ -34,8 +34,12 @@ public class Kmean {
 			}
 
 			// create initial centroid using forgy method
-			ArrayList<double[]> Centroid =  forgy(k);
-//			ArrayList<double[]> Centroid =  RPM(k);
+			ArrayList<double[]> Centroid = new ArrayList<double[]>();
+			if(initMethod.equals("RPM")){
+				Centroid =  RPM(k);
+			}else{
+				Centroid =  forgy(k);
+			}
 			
 			boolean check = true;
 			// to count the iteration
@@ -64,6 +68,16 @@ public class Kmean {
 					// place the object in the closest cluster
 					Clusters.get(assignedClusterIndex).add(SystemList.get(ii));
 				}
+				
+				// deal with empty clusters
+				Random rand = new Random();
+				for(int i=0; i<Clusters.size();i++){
+					if(Clusters.get(i).isEmpty()){
+						System.out.println("fill me up");
+						Clusters.get(i).add(SystemList.get(rand.nextInt(SystemList.size())));
+					}
+				}
+				
 				// calculate the new centroids
 				ArrayList<double[]> newCentroid = calCentroids(Clusters);
 				// calculate distance old and new centroid
@@ -117,6 +131,7 @@ public class Kmean {
 			// remove the number from the bowl
 			bowl.remove(ranNumindex);
 		}
+		System.out.println("Successfully initialized with forgy method!");
 		return Centroid;
 	}
 	// ##################################################################################
@@ -137,20 +152,30 @@ public class Kmean {
 		Random rand = new Random();
 		for(int i=0; i<SystemList.size();i++){
 			int  ranNumindex = rand.nextInt(bowl.size());
-			int  ranNClusindex = rand.nextInt(k);
-			System.out.println("random cluster index " + ranNClusindex);
+//			System.out.println("random element index " + ranNumindex);
+//			int  ranNClusindex = rand.nextInt(k);
+			int  ranNClusindex = 0 ;
+			for(int ii=0; ii<k; ii++){
+				if(i <= (SystemList.size()/(k) + SystemList.size()/(k)*ii)){
+					ranNClusindex=ii;
+					break;
+				}
+			}
+//			System.out.println("random cluster index " + ranNClusindex);
 			// insert the ranNumindex element from SystemList to the ranNClusindex Cluster
 			Clusters.get(ranNClusindex).add(SystemList.get(ranNumindex));
 			bowl.remove(ranNumindex);
 		}
+		
 		Centroid = calCentroids(Clusters);
-		for(int i=0; i < Centroid.size(); i++ ){
-			System.out.println("Centroid # " + i);
-			for(int ii=0; ii<Centroid.get(i).length;ii++){
-				System.out.print( Centroid.get(i)[ii] + " ");
-			}
-			System.out.println();
-		}
+//		for(int i=0; i < Centroid.size(); i++ ){
+//			System.out.println("Centroid # " + i);
+//			for(int ii=0; ii<Centroid.get(i).length;ii++){
+//				System.out.print( Centroid.get(i)[ii] + " ");
+//			}
+//			System.out.println();
+//		}
+		System.out.println("Successfully initialized with random partition method!");
 		return Centroid;
 	}
 	
