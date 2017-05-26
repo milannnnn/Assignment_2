@@ -10,7 +10,7 @@ public class test {
 		FillStates fillings = new FillStates();
 		ArrayList<SystemState> allStates = fillings.getStates("root", "root", "measurements");
 		for(int k=0; k<allStates.size(); k++){
-			System.out.println(allStates.get(k).time);
+			System.out.println(allStates.get(k).values()[2]);
 		}
 		
 	}
