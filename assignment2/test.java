@@ -8,9 +8,10 @@ public class test {
 		// TODO Auto-generated method stub
 		
 		FillStates fillings = new FillStates();
-		ArrayList<SystemState> allStates = fillings.getStates("root", "root", "measurements");
+		ArrayList<SystemState> allStates = fillings.getStates("root", "Callandor14", "measurements");
 		for(int k=0; k<allStates.size(); k++){
-			System.out.println(allStates.get(k).values()[2]);
+
+		System.out.println(allStates.get(k).values()[1]);
 		}
 		
 	}
