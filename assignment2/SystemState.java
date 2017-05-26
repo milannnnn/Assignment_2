@@ -20,9 +20,9 @@ public class SystemState {
 
 	public ArrayList<SimpleObject> buses = new ArrayList<SimpleObject>(); // Bus ID, Voltage, Angle
 	
+	// ###########################################################
+	// Initialize a New System State
 	public SystemState(){}
-	
-	//### Initialize a New System State
 	public SystemState(String[] readData){
 		// readData[0] - Name column
 		// readData[1] - Time column
@@ -39,7 +39,6 @@ public class SystemState {
 			tmpBus.voltage = Double.parseDouble(readData[2]);
 		}
 		buses.add(tmpBus);
-
 	}
 	
 	//### Add New Data to Current State
@@ -82,7 +81,8 @@ public class SystemState {
 		}
 	}
 	
-	//### Check if Measurement Is an Angle
+	// ###########################################################
+	// Check if Measurement Is an Angle
 	private boolean isAngle(String name){
 		if(name.substring(name.length()-3, name.length()).equals("ANG")){
 			return true;
@@ -90,7 +90,8 @@ public class SystemState {
 		return false;
 	}
 	
-	//### Sorts Buses in Given Order of Appearance, and Eliminates all Buses Not Included in Sorting List
+	// ###############################################################################################
+	// Sorts Buses in Given Order of Appearance, and Eliminates all Buses Not Included in Sorting List
 	public void sortBuses(String[] busOrder){
 		ArrayList<SimpleObject> tmpBuses = new ArrayList<SimpleObject>();
 		for(int k=0; k<busOrder.length; k++){
@@ -106,6 +107,8 @@ public class SystemState {
 	}
 	
 	
+	// ###########################################################
+	// Normalize all State Variables with Min and Max Values
 	public void normalize(double[] minAngles, double[] maxAngles, double[] minVolts, double[] maxVolts){
 		for(int k=0; k<minAngles.length; k++){
 			if(maxAngles[k]!=minAngles[k]){
@@ -124,7 +127,8 @@ public class SystemState {
 		}
 	}
 	
-	//### Returns a Vector of State Variables (angles and voltages)
+	// ###########################################################
+	// Returns the Vector of State Variables (angles and voltages)
 	public double[] values(){
 		double[] vals = new double[buses.size()*2];
 		for(int k=0; k<buses.size(); k++){
@@ -134,6 +138,8 @@ public class SystemState {
 		return vals;
 	}
 	
+	// ###########################################################
+	// Prints the Vector of State Variables (angles and voltages)
 	public void printValues(){
 		for(int k=0; k<buses.size(); k++){
 			System.out.print(buses.get(k).angle  +"\t");
