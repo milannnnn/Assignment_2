@@ -1,10 +1,10 @@
 package assignment2;
 
 import java.sql.*;
-import java.util.ArrayList;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
+//import java.util.ArrayList;
+//import javax.sound.sampled.AudioInputStream;
+//import javax.sound.sampled.AudioSystem;
+//import javax.sound.sampled.Clip;
 
 // It initializes a DataBase called "assignment_1_MMMM", 
 // It adds a table to the DB using the method insertTable, declaring PRIMARY and FOREIGN KEYs
@@ -31,8 +31,8 @@ public class SQLprinter {
 	public SQLprinter(String USER,String PASS){
 		// JDBC driver name and database URL
 		// Database credentials
-		this.USER = USER;
-		this.PASS = PASS;
+		SQLprinter.USER = USER;
+		SQLprinter.PASS = PASS;
 		conn = null;
 		stmt = null;
 		try{

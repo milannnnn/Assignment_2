@@ -1,0 +1,109 @@
+package assignment2;
+
+import java.util.ArrayList;
+
+//import javax.sound.sampled.AudioInputStream;
+//import javax.sound.sampled.AudioSystem;
+//import javax.sound.sampled.Clip;
+
+
+// TODO - Normalize Read Data
+
+public class FillStates {
+	public static void main(String[] args){
+		//SQLprinter newPrinter = new SQLprinter("root","Callandor14");
+		SQLprinter newPrinter = new SQLprinter("root","root");
+		String[] colName = {"name","time","value","sub_rdfid"};
+		String[][] resData = newPrinter.readTable("measurements", colName);
+		newPrinter.exit();
+		
+		ArrayList<SystemState> allStates = new ArrayList<SystemState>();
+		for(int k=0; k<resData.length; k++){
+			int tmpTime = Integer.parseInt(resData[k][1]);
+			int pos = -1;
+			// Check if we already have a state for given time
+			for(int j=0; j<allStates.size(); j++){
+				if(allStates.get(j).time == tmpTime){
+					pos = j;
+					break;
+				}
+			}
+			// If we don't have the state for given time, create a new one
+			if(pos == -1){
+				allStates.add(new SystemState(resData[k]));
+			}
+			// If we have the state for given time, just update the values
+			else{
+				allStates.get(pos).addData(resData[k]);
+			}
+		}
+				
+		//### Printing Out for Debugging:
+		for(int k=0; k<allStates.size(); k++){
+//			if(allStates.get(k).time==1){
+//				for(int j=0; j<allStates.get(k).buses.size(); j++){
+//					System.out.print(allStates.get(k).buses.get(j).voltage+"\t");
+//					System.out.print(allStates.get(k).buses.get(j).angle+"\t");
+//					System.out.println(allStates.get(k).buses.get(j).busID);
+//				}
+//			}
+//			System.out.println(allStates.get(k).time);
+//			System.out.println(allStates.get(k).buses.size());
+		}
+		
+		//### Check the Number of States Found:
+		if(allStates.size()==0){
+			System.out.println("No States Found - Please Check Input Database!!!");
+			terminateProgram();
+		}
+		
+		//### Check if All States have the Same Length:
+		int k1=0;
+		for(int k=0; k<allStates.size(); k++){
+			if(k==0){
+				k1 = allStates.get(k).buses.size();
+			}
+			else{
+				if(k1!=allStates.get(k).buses.size()){
+					System.out.println("Inconsistent State Dimensions (measurements)!!!");
+					System.out.println("Please correct input data and try again!!!");
+					terminateProgram();
+				}
+			}
+		}
+		
+		//### Order the Buses in the Same Order
+		String[] busOrder = new String[allStates.get(0).buses.size()];
+		for(int k=0; k<allStates.get(0).buses.size(); k++){
+			busOrder[k] = allStates.get(0).buses.get(k).busID;
+		}
+		for(int k=1; k<allStates.size(); k++){
+			allStates.get(k).sortBuses(busOrder);
+		}
+		
+		for(int k=0; k<allStates.size(); k++){
+			System.out.println(allStates.get(k).buses.get(2).busID);
+		}
+		
+		
+		
+		
+	}
+	
+	@SuppressWarnings("deprecation")
+	private static void terminateProgram(){
+//		try {
+//			Clip clip = AudioSystem.getClip();
+////			File file = new File("./src/doh.wav");
+////		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(file);
+//		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(Gui.class.getResource("/doh.wav"));
+//		    clip.open(inputStream);
+//		    clip.start(); 
+//		} 
+//		catch (Exception e) {
+//			System.err.println(e.getMessage());
+//		}	
+		System.out.println("\n=> Program Intentionally Terminated (Kill it before it lays eggs!!!)");
+		Thread.currentThread().stop();
+	}
+}
