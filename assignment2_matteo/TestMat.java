@@ -11,7 +11,7 @@ public class TestMat {
 		// TODO Auto-generated method stub
 		FillStates fillings = new FillStates();
 		ArrayList<SystemState> allStates = fillings.getStates("root", "Callandor14", "measurements");
-		Kmean kmeanTest = new Kmean(allStates, 1e-6);
+		Kmean kmeanTest = new Kmean(allStates, 1e-8, 1000);
 		ArrayList<ArrayList<SystemState>> Clusters= kmeanTest.kMeanClustering(4);
 
 	}

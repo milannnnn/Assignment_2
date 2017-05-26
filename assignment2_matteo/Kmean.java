@@ -11,12 +11,13 @@ public class Kmean {
 	// replace double[] with object
 	public static ArrayList<SystemState> SystemList;
 	public static double tol ;
-	
+	public static int maxIter ;
 	// ##################################################################################
 	// constructor
-	public Kmean(ArrayList<SystemState> SystemList, double tol){
+	public Kmean(ArrayList<SystemState> SystemList, double tol, int maxIter){
 		Kmean.SystemList = SystemList;
 		Kmean.tol = tol;
+		Kmean.maxIter = maxIter;
 	}
 	
 	
@@ -26,9 +27,15 @@ public class Kmean {
 			
 			// arbitrarily assign centroids from within the dataset
 			// create an arrayList of clusters, which are arraylists of SystemState
-			ArrayList<ArrayList<SystemState>> Clusters = new ArrayList<ArrayList<SystemState>>(k);
+			ArrayList<ArrayList<SystemState>> Clusters = new ArrayList<ArrayList<SystemState>>();
+			
+			for(int i=0; i<k;i++){
+				Clusters.add(new ArrayList<SystemState>());
+			}
+
 			// create initial centroid using forgy method
 			ArrayList<double[]> Centroid =  forgy(k);
+//			ArrayList<double[]> Centroid =  RPM(k);
 			
 			boolean check = true;
 			// to count the iteration
@@ -64,7 +71,7 @@ public class Kmean {
 				for(int i=0; i<k; i++){
 					double delta = EuDistance( Centroid.get(i), newCentroid.get(i));
 					System.out.println("Delta cluster " + (i+1) + " " + delta );
-					if(delta > tol){
+					if(delta > tol && keepTime < maxIter){
 						check=true;
 					}
 				}
@@ -106,7 +113,10 @@ public class Kmean {
     // random partition method
 	public static ArrayList<double[]> RPM(int k){
 		ArrayList<double[]> Centroid = new ArrayList<double[]>();
-		ArrayList<ArrayList<SystemState>> Clusters = new ArrayList<ArrayList<SystemState>>(k);
+		ArrayList<ArrayList<SystemState>> Clusters = new ArrayList<ArrayList<SystemState>>();
+		for(int i=0; i<k;i++){
+			Clusters.add(new ArrayList<SystemState>());
+		}
 		// create a random number to assign centroid
 		ArrayList<Integer> bowl = new ArrayList<Integer>();
 		// fill the bowl with number from 0 to SystemList.size()
@@ -114,15 +124,23 @@ public class Kmean {
 			bowl.add(i);
 		}
 		// assign each object to a cluster randomly
+		Random rand = new Random();
 		for(int i=0; i<SystemList.size();i++){
-			Random rand = new Random();
 			int  ranNumindex = rand.nextInt(bowl.size());
 			int  ranNClusindex = rand.nextInt(k);
+			System.out.println("random cluster index " + ranNClusindex);
 			// insert the ranNumindex element from SystemList to the ranNClusindex Cluster
 			Clusters.get(ranNClusindex).add(SystemList.get(ranNumindex));
 			bowl.remove(ranNumindex);
 		}
 		Centroid = calCentroids(Clusters);
+		for(int i=0; i < Centroid.size(); i++ ){
+			System.out.println("Centroid # " + i);
+			for(int ii=0; ii<Centroid.get(i).length;ii++){
+				System.out.print( Centroid.get(i)[ii] + " ");
+			}
+			System.out.println();
+		}
 		return Centroid;
 	}
 	
@@ -130,8 +148,12 @@ public class Kmean {
 	// calculate new centroids
 	private static  ArrayList<double[]> calCentroids(ArrayList<ArrayList<SystemState>> Clusters){
 		 ArrayList<double[]> Centroid = new ArrayList<double[]>();
-		for(int i=0; i< Clusters.get(0).size(); i++){
-			Centroid.add(MeanOneCluster(Clusters.get(i)));
+		for(int i=0; i< Clusters.size(); i++){
+			if(Clusters.get(i).isEmpty()){
+				System.out.println("cluster " + (1+i) + " is empty");
+			}else{
+				Centroid.add(MeanOneCluster(Clusters.get(i)));
+			}
 		}
 		return Centroid;
 	}
@@ -151,9 +173,8 @@ public class Kmean {
 	// calculate the average value of the cluster formed by the ArrayList values
 		private static double[] MeanOneCluster(ArrayList<SystemState> clusterElements){
 			// #####
-//			double[] mean = new double[clusterElements.get(0).values.length];
+			double[] mean = new double[clusterElements.get(0).values().length];
 			// ######
-			double[] mean = new double[18];
 			for(int i=0; i<clusterElements.size();i++){
 				// #####
 				double[] newValues = clusterElements.get(i).values();
