@@ -10,11 +10,13 @@ import java.util.ArrayList;
 // TODO - Normalize Read Data
 
 public class FillStates {
-	public static void main(String[] args){
+	//### Extracts the System States from SQL Database, Sorts and Normalizes them, and return them in an ArrayList 
+	public ArrayList<SystemState> getStates(String user, String pass, String tableName){
+		
 		//SQLprinter newPrinter = new SQLprinter("root","Callandor14");
-		SQLprinter newPrinter = new SQLprinter("root","root");
+		SQLprinter newPrinter = new SQLprinter(user,pass);
 		String[] colName = {"name","time","value","sub_rdfid"};
-		String[][] resData = newPrinter.readTable("measurements", colName);
+		String[][] resData = newPrinter.readTable(tableName, colName);
 		newPrinter.exit();
 		
 		ArrayList<SystemState> allStates = new ArrayList<SystemState>();
@@ -72,7 +74,7 @@ public class FillStates {
 			}
 		}
 		
-		//### Order the Buses in the Same Order
+		//### Sort the Buses in the Same Order:
 		String[] busOrder = new String[allStates.get(0).buses.size()];
 		for(int k=0; k<allStates.get(0).buses.size(); k++){
 			busOrder[k] = allStates.get(0).buses.get(k).busID;
@@ -80,18 +82,46 @@ public class FillStates {
 		for(int k=1; k<allStates.size(); k++){
 			allStates.get(k).sortBuses(busOrder);
 		}
+//		for(int k=0; k<allStates.size(); k++){
+//			System.out.println(allStates.get(k).buses.get(1).busID);
+//		}
 		
+		//### Normalize the Data:
+		
+		// Find Mins and Maxs
+		double[] minVolts  = new double[allStates.get(0).buses.size()];
+		double[] maxVolts  = new double[allStates.get(0).buses.size()];
+		double[] minAngles = new double[allStates.get(0).buses.size()];
+		double[] maxAngles = new double[allStates.get(0).buses.size()];
 		for(int k=0; k<allStates.size(); k++){
-			System.out.println(allStates.get(k).buses.get(2).busID);
+			if(k==0){
+				for(int j=0; j<allStates.get(k).buses.size(); j++){
+					minAngles[j] = allStates.get(k).buses.get(j).angle;
+					maxAngles[j] = allStates.get(k).buses.get(j).angle;
+					minVolts[j]  = allStates.get(k).buses.get(j).voltage;
+					maxVolts[j]  = allStates.get(k).buses.get(j).voltage;
+				}
+			}
+			else{
+				for(int j=0; j<allStates.get(k).buses.size(); j++){
+					minAngles[j] = java.lang.Math.min(minAngles[j], allStates.get(k).buses.get(j).angle);
+					maxAngles[j] = java.lang.Math.max(maxAngles[j], allStates.get(k).buses.get(j).angle);
+					minVolts[j]  = java.lang.Math.min(minVolts[j],  allStates.get(k).buses.get(j).voltage);
+					maxVolts[j]  = java.lang.Math.max(maxVolts[j],  allStates.get(k).buses.get(j).voltage);
+				}
+			}
+		}
+
+		// Normalize All States
+		for(int k=0; k<allStates.size(); k++){
+			allStates.get(k).normalize(minAngles, maxAngles, minVolts, maxVolts);
 		}
 		
-		
-		
-		
+		return allStates;
 	}
 	
 	@SuppressWarnings("deprecation")
-	private static void terminateProgram(){
+	private void terminateProgram(){
 //		try {
 //			Clip clip = AudioSystem.getClip();
 ////			File file = new File("./src/doh.wav");

@@ -100,9 +100,38 @@ public class SystemState {
 					break;
 				}
 			}
-//			buses.clear();
-//			buses.addAll(tmpBuses);
 		}
-		
+		buses.clear();
+		buses.addAll(tmpBuses);
 	}
+	
+	
+	public void normalize(double[] minAngles, double[] maxAngles, double[] minVolts, double[] maxVolts){
+		for(int k=0; k<minAngles.length; k++){
+			if(maxAngles[k]!=minAngles[k]){
+				buses.get(k).angle   = (buses.get(k).angle-minAngles[k])/(maxAngles[k]-minAngles[k]);
+			}
+			else{
+				buses.get(k).angle = 1;
+			}
+			
+			if(maxAngles[k]!=minAngles[k]){
+				buses.get(k).voltage = (buses.get(k).voltage-minVolts[k])/(maxVolts[k]-minVolts[k]);
+			}
+			else{
+				buses.get(k).voltage = 1;
+			}
+		}
+	}
+	
+	//### Returns a Vector of State Variables (angles and voltages)
+	public double[] values(){
+		double[] vals = new double[buses.size()*2];
+		for(int k=0; k<buses.size(); k++){
+			vals[2*k]   = buses.get(k).angle;
+			vals[2*k+1] = buses.get(k).voltage;
+		}
+		return vals;
+	}
+	
 }
