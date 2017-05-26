@@ -1,4 +1,4 @@
-package assignment2_matteo;
+package assignment2;
 
 import java.util.ArrayList;
 
@@ -11,7 +11,7 @@ public class TestMat {
 		// TODO Auto-generated method stub
 		FillStates fillings = new FillStates();
 		ArrayList<SystemState> allStates = fillings.getStates("root", "Callandor14", "measurements");
-		Kmean kmeanTest = new Kmean(allStates, 1e-8, 1000);
+		Kmean kmeanTest = new Kmean(allStates, 1e-15, 1000);
 		ArrayList<ArrayList<SystemState>> Clusters= kmeanTest.kMeanClustering(4);
 //		System.out.println(Clusters.size());
 		for(int ii=0; ii<Clusters.size(); ii++){
