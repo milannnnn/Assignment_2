@@ -150,4 +150,19 @@ public class SystemState {
 		}
 		System.out.print("\n");
 	}
+	
+	public String stringValues(){
+		String s = "";
+		for(int k=0; k<buses.size(); k++){
+			s += Double.toString(buses.get(k).angle)+",";
+			s += Double.toString(buses.get(k).voltage);
+			if(k!=(buses.size()-1)){
+				System.out.print("\t");
+				s += ",";
+			}
+		}
+		s += "\n";
+		return s;
+	}
+	
 }
