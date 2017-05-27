@@ -260,28 +260,27 @@ public class Kmean {
 		
 		// ##################################################################################
 		// export csv
-		public static void CSV(ArrayList<ArrayList<SystemState>> Clusters) {
+		public static void CSV(ArrayList<ArrayList<SystemState>> Clusters , int k) {
 	        PrintWriter pw;
 			try {
-				pw = new PrintWriter(new File("test.csv"));
-				StringBuilder sb = new StringBuilder();
-				for(int ii=0; ii<Clusters.size(); ii++){
-					for(int i=0; i<Clusters.get(ii).size(); i++){
-						sb.append(Clusters.get(ii).get(i).printValues());
-					}
+				ArrayList<PrintWriter> pwArray = new ArrayList<PrintWriter>();
+				for(int i=0; i < k ;i++){
+					String name = "cluster_" + (i+1) + ".csv";
+					pw = new PrintWriter(new File(name));
+					pwArray.add(pw);
 				}
 				
-				
-				
-		        sb.append("id");
-		        sb.append(',');
-		        sb.append("Name");
-		        sb.append('\n');
+				for(int ii=0; ii<Clusters.size(); ii++){
+					StringBuilder sb = new StringBuilder();
+					for(int i=0; i<Clusters.get(ii).size(); i++){
+						sb.append(Clusters.get(ii).get(i).stringValues());
+					}
+					pw = pwArray.get(ii);
+					pw.write(sb.toString());
+			        pw.close();
+				}
 	
-		        pw.write(sb.toString());
-		        pw.close();
-		        System.out.println("done!");
-				
+		        System.out.println("CSV created!");
 				
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
