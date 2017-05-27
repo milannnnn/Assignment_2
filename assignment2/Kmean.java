@@ -26,7 +26,7 @@ public class Kmean {
 	
 	// ##################################################################################
 	
-	public static ArrayList<ArrayList<SystemState>> kMeanClustering(int k, String initMethod) {
+	public static ArrayList<ArrayList<SystemState>> kMeanClustering(int k, int kOrg, String initMethod) {
 			
 			// arbitrarily assign centroids from within the dataset
 			// create an arrayList of clusters, which are arraylists of SystemState
@@ -92,6 +92,10 @@ public class Kmean {
 				// if difference is less than a specified tolerance clustering is done
 			System.out.println(" iterations: " + keepTime);
 			}
+			
+			Clusters = downscaleClusters(Clusters, kOrg);
+			
+			
 			return Clusters;
 		}
 	// ##################################################################################
@@ -102,12 +106,13 @@ public class Kmean {
 		for(int i=0; i<Clusters.size();i++){
 			if(Clusters.get(i).isEmpty()){
 				System.out.println("fill me up");
-				for(int ii=i; ii<Clusters.size();ii++){
-					if(!Clusters.get(ii).isEmpty()){
+				for(int ii=0; ii<Clusters.size();ii++){
+					if(Clusters.get(ii).size()>1){
 						int elementIndex = rand.nextInt(Clusters.get(ii).size());
 						Clusters.get(i).add(Clusters.get(ii).get(elementIndex));
 						// remove from old cluster
-						Clusters.get(ii).remove(ii);
+						Clusters.get(ii).remove(elementIndex);
+						break;
 					}
 				}
 			}
@@ -257,6 +262,42 @@ public class Kmean {
 				return result;
 			}
 		}
+		
+		// ##################################################################################
+		//  down scale clusters
+		private static ArrayList<ArrayList<SystemState>> downscaleClusters(ArrayList<ArrayList<SystemState>> clusters, int n){
+			ArrayList<ArrayList<SystemState>> tmpClusters = new ArrayList<ArrayList<SystemState>>();
+			tmpClusters.addAll(clusters);
+			ArrayList<double[]> centroids = calCentroids(tmpClusters);
+			
+			while(tmpClusters.size()>n){
+				double minDist = 0, tmpDist = 0;
+				int q1=0, q2=0;
+				for(int k=0; k<tmpClusters.size(); k++){
+					for(int j=k+1; j<tmpClusters.size(); j++){
+						tmpDist = EuDistance(centroids.get(k), centroids.get(j));
+						if(k==0 && j==1){
+							minDist = tmpDist;
+							q1 = k;
+							q2 = j;
+						}
+						else{
+							if(tmpDist<minDist){
+								minDist = tmpDist;
+								q1 = k;
+								q2 = j;
+							}
+						}
+					}
+				}
+				tmpClusters.get(q1).addAll(tmpClusters.get(q2));
+				tmpClusters.remove(q2);
+				centroids = calCentroids(tmpClusters);
+			}
+			return tmpClusters;
+		}
+		
+		
 		
 		// ##################################################################################
 		// export csv
