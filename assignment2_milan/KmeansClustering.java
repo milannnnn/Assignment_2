@@ -37,7 +37,6 @@ public class KmeansClustering {
 		}
 		
 		//### Downscaling to Original Number of Clusters:
-		
 		clusters = downscaleClusters(clusters, kOrg);
 		
 		for(int j=0; j<clusters.size(); j++){
@@ -52,6 +51,7 @@ public class KmeansClustering {
 	
 	}
 	
+	//##### Forgy Method for Picking Initial Centroids:
 	private static ArrayList<double[]> pickCentroids(ArrayList<SystemState> states, int n){
 		ArrayList<double[]> centroids = new ArrayList<double[]>();
 		ArrayList<double[]> positions = new ArrayList<double[]>();
@@ -68,6 +68,7 @@ public class KmeansClustering {
 		return centroids;
 	}
 	
+	//##### RPM   Method for Picking Initial Centroids:
 	private static ArrayList<double[]> pickCentroidsRPM(ArrayList<SystemState> states, int n){
 		ArrayList<double[]> centroids = new ArrayList<double[]>();
 		ArrayList<SystemState> tmpStates = new ArrayList<SystemState>();
@@ -87,6 +88,7 @@ public class KmeansClustering {
 		return centroids;
 	}
 	
+	//##### Method for Calculating Euclidean Distance Between 2 Points
 	private static double euclDist(double[] f1, double[] f2){
 		double dist = 0;
 		for(int k=0; k<f1.length; k++){
@@ -96,6 +98,7 @@ public class KmeansClustering {
 		return dist;
 	}
 	
+	//##### Method for Finding Closest Centroid for a State
 	private static int findClosestCent(SystemState fl, ArrayList<double[]> centroids){
 		int p=0;
 		double dist, minDist;
