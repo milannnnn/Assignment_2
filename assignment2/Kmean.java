@@ -1,5 +1,8 @@
 package assignment2;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -70,13 +73,7 @@ public class Kmean {
 				}
 				
 				// deal with empty clusters
-				Random rand = new Random();
-				for(int i=0; i<Clusters.size();i++){
-					if(Clusters.get(i).isEmpty()){
-						System.out.println("fill me up");
-						Clusters.get(i).add(SystemList.get(rand.nextInt(SystemList.size())));
-					}
-				}
+				Clusters = fillIt( Clusters, k);
 				
 				// calculate the new centroids
 				ArrayList<double[]> newCentroid = calCentroids(Clusters);
@@ -98,13 +95,33 @@ public class Kmean {
 			return Clusters;
 		}
 	// ##################################################################################
+	// deal with empty cluster
+	public static ArrayList<ArrayList<SystemState>> fillIt(ArrayList<ArrayList<SystemState>> Clusters, int k){
+		// deal with empty clusters
+		Random rand = new Random();
+		for(int i=0; i<Clusters.size();i++){
+			if(Clusters.get(i).isEmpty()){
+				System.out.println("fill me up");
+				for(int ii=i; ii<Clusters.size();ii++){
+					if(!Clusters.get(ii).isEmpty()){
+						int elementIndex = rand.nextInt(Clusters.get(ii).size());
+						Clusters.get(i).add(Clusters.get(ii).get(elementIndex));
+						// remove from old cluster
+						Clusters.get(ii).remove(ii);
+					}
+				}
+			}
+		}
+		return Clusters;
+	}
+	
+	// ##################################################################################
+	// clear list
 	public static void clear(ArrayList<ArrayList<SystemState>> Clusters){
 		for(int i=0; i<Clusters.size();i++){
 			Clusters.get(i).clear();
 		}
 	}
-	
-	
 	// ##################################################################################
     // forgy method
 	public static ArrayList<double[]> forgy(int k){
@@ -240,4 +257,35 @@ public class Kmean {
 				return result;
 			}
 		}
+		
+		// ##################################################################################
+		// export csv
+		public static void CSV(ArrayList<ArrayList<SystemState>> Clusters) {
+	        PrintWriter pw;
+			try {
+				pw = new PrintWriter(new File("test.csv"));
+				StringBuilder sb = new StringBuilder();
+				for(int ii=0; ii<Clusters.size(); ii++){
+					for(int i=0; i<Clusters.get(ii).size(); i++){
+						sb.append(Clusters.get(ii).get(i).printValues());
+					}
+				}
+				
+				
+				
+		        sb.append("id");
+		        sb.append(',');
+		        sb.append("Name");
+		        sb.append('\n');
+	
+		        pw.write(sb.toString());
+		        pw.close();
+		        System.out.println("done!");
+				
+				
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    }
 }
