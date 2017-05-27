@@ -11,13 +11,14 @@ public class KmeansClustering {
 	
 	public static void main(String[] args){
 		
-		double tol = 1e-15;
+		double tol = 1e-16;
 		boolean runLoop = true;
 		
 		int k = 4;
 		FillStates fillings = new FillStates();
 		ArrayList<SystemState> allStates = fillings.getStates("root", "root", "measurements");
-		ArrayList<double[]> centroids = pickCentroids(allStates, k);
+		//ArrayList<double[]> centroids = pickCentroids(allStates, k);
+		ArrayList<double[]> centroids = pickCentroidsRPM(allStates, k);
 		ArrayList<double[]> newCentroids;
 		ArrayList<ArrayList<SystemState>> clusters = new ArrayList<ArrayList<SystemState>>();
 		
@@ -34,11 +35,14 @@ public class KmeansClustering {
 			System.out.printf("Itteration %d (difference %f)\n",loopCounter,diff);
 		}
 		for(int j=0; j<clusters.size(); j++){
-			System.out.println("Cluser "+(j+1));
-			for(int m=0; m<clusters.get(j).size(); m++){
-				clusters.get(j).get(m).printValues();
-			}
+			System.out.print(clusters.get(j).size()+"\t");
 		}
+//		for(int j=0; j<clusters.size(); j++){
+//			System.out.println("Cluser "+(j+1));
+//			for(int m=0; m<clusters.get(j).size(); m++){
+//				clusters.get(j).get(m).printValues();
+//			}
+//		}
 	
 	}
 	
@@ -55,6 +59,25 @@ public class KmeansClustering {
 			centroids.add(positions.get(j));
 			positions.remove(j);
 		}
+		return centroids;
+	}
+	
+	private static ArrayList<double[]> pickCentroidsRPM(ArrayList<SystemState> states, int n){
+		ArrayList<double[]> centroids = new ArrayList<double[]>();
+		ArrayList<SystemState> tmpStates = new ArrayList<SystemState>();
+		tmpStates.addAll(states);
+		ArrayList<ArrayList<SystemState>> splits = new ArrayList<ArrayList<SystemState>>();
+		for(int k=0; k<n; k++){
+			splits.add(new ArrayList<SystemState>());
+		}
+		Random rand = new Random();
+		int j;
+		for(int k=tmpStates.size(); k>0; k--){
+			j = rand.nextInt(tmpStates.size());
+			splits.get(k%n).add(tmpStates.get(j));
+			tmpStates.remove(j);
+		}
+		centroids = calcNewCent(splits);
 		return centroids;
 	}
 	
@@ -83,7 +106,7 @@ public class KmeansClustering {
 	
 	private static ArrayList<ArrayList<SystemState>> splitClusters(ArrayList<SystemState> allStates, ArrayList<double[]> centroids){
 		ArrayList<ArrayList<SystemState>> clusters = new ArrayList<ArrayList<SystemState>>();
-		// Create Array Lists of Flowers for Each Cluster
+		// Create Array Lists of States for Each Cluster
 		for(int k=0; k<centroids.size(); k++){
 			clusters.add(new ArrayList<SystemState>());
 		}
