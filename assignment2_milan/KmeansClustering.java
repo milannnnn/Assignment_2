@@ -14,11 +14,12 @@ public class KmeansClustering {
 		double tol = 1e-16;
 		boolean runLoop = true;
 		
-		int k = 4;
+		int kOrg =  4;
+		int k    = 16;
 		FillStates fillings = new FillStates();
 		ArrayList<SystemState> allStates = fillings.getStates("root", "root", "measurements");
-		//ArrayList<double[]> centroids = pickCentroids(allStates, k);
-		ArrayList<double[]> centroids = pickCentroidsRPM(allStates, k);
+		ArrayList<double[]> centroids = pickCentroids(allStates, k);
+		//ArrayList<double[]> centroids = pickCentroidsRPM(allStates, k);
 		ArrayList<double[]> newCentroids;
 		ArrayList<ArrayList<SystemState>> clusters = new ArrayList<ArrayList<SystemState>>();
 		
@@ -34,6 +35,11 @@ public class KmeansClustering {
 			}
 			System.out.printf("Itteration %d (difference %f)\n",loopCounter,diff);
 		}
+		
+		//### Downscaling to Original Number of Clusters:
+		
+		clusters = downscaleClusters(clusters, kOrg);
+		
 		for(int j=0; j<clusters.size(); j++){
 			System.out.print(clusters.get(j).size()+"\t");
 		}
@@ -156,6 +162,37 @@ public class KmeansClustering {
 		}
 		return dist;
 	}
-
+	
+	private static ArrayList<ArrayList<SystemState>> downscaleClusters(ArrayList<ArrayList<SystemState>> clusters, int n){
+		ArrayList<ArrayList<SystemState>> tmpClusters = new ArrayList<ArrayList<SystemState>>();
+		tmpClusters.addAll(clusters);
+		ArrayList<double[]> centroids = calcNewCent(tmpClusters);
+		
+		while(tmpClusters.size()>n){
+			double minDist = 0, tmpDist = 0;
+			int q1=0, q2=0;
+			for(int k=0; k<tmpClusters.size(); k++){
+				for(int j=k+1; j<tmpClusters.size(); j++){
+					tmpDist = euclDist(centroids.get(k), centroids.get(j));
+					if(k==0 && j==1){
+						minDist = tmpDist;
+						q1 = k;
+						q2 = j;
+					}
+					else{
+						if(tmpDist<minDist){
+							minDist = tmpDist;
+							q1 = k;
+							q2 = j;
+						}
+					}
+				}
+			}
+			tmpClusters.get(q1).addAll(tmpClusters.get(q2));
+			tmpClusters.remove(q2);
+			centroids = calcNewCent(tmpClusters);
+		}
+		return tmpClusters;
+	}
 }
 
