@@ -1,8 +1,12 @@
 package assignment2_milan;
 
 import java.util.ArrayList;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.lang.Math;
 import java.util.Random;
+
 
 // 
 
@@ -12,14 +16,25 @@ public class KmeansClustering {
 	public static void main(String[] args){
 		
 		double tol = 1e-16;
-		boolean runLoop = true;
-		
+		String initMethod = "forgy";
+		int maxIters = 1000;
 		int kOrg =  4;
 		int k    = 16;
+
+		boolean runLoop = true;
+		
+		//### Read In all Input Data
 		FillStates fillings = new FillStates();
 		ArrayList<SystemState> allStates = fillings.getStates("root", "root", "measurements");
-		ArrayList<double[]> centroids = pickCentroids(allStates, k);
-		//ArrayList<double[]> centroids = pickCentroidsRPM(allStates, k);
+		
+		//### Initialize the Centroids (based on desired initMethod)
+		ArrayList<double[]> centroids = new ArrayList<double[]>();
+		if(initMethod.equals("RPM")){
+			centroids = pickCentroidsRPM(allStates, k);
+		}
+		else{
+			centroids = pickCentroids(allStates, k);
+		}
 		ArrayList<double[]> newCentroids;
 		ArrayList<ArrayList<SystemState>> clusters = new ArrayList<ArrayList<SystemState>>();
 		
@@ -30,7 +45,7 @@ public class KmeansClustering {
 			newCentroids = calcNewCent(clusters);
 			double diff = calcCentDiff(centroids,newCentroids);
 			centroids = newCentroids;
-			if(diff<tol){
+			if(diff<tol || loopCounter>maxIters){
 				runLoop = false;
 			}
 			System.out.printf("Itteration %d (difference %f)\n",loopCounter,diff);
@@ -42,6 +57,8 @@ public class KmeansClustering {
 		for(int j=0; j<clusters.size(); j++){
 			System.out.print(clusters.get(j).size()+"\t");
 		}
+		
+		CSV(clusters,kOrg);
 //		for(int j=0; j<clusters.size(); j++){
 //			System.out.println("Cluser "+(j+1));
 //			for(int m=0; m<clusters.get(j).size(); m++){
@@ -197,5 +214,32 @@ public class KmeansClustering {
 		}
 		return tmpClusters;
 	}
-}
 
+	public static void CSV(ArrayList<ArrayList<SystemState>> Clusters , int k) {
+        PrintWriter pw;
+		try {
+			ArrayList<PrintWriter> pwArray = new ArrayList<PrintWriter>();
+			for(int i=0; i < k ;i++){
+				String name = "cluster_" + (i+1) + ".csv";
+				pw = new PrintWriter(new File(name));
+				pwArray.add(pw);
+			}
+			
+			for(int ii=0; ii<Clusters.size(); ii++){
+				StringBuilder sb = new StringBuilder();
+				for(int i=0; i<Clusters.get(ii).size(); i++){
+					sb.append(Clusters.get(ii).get(i).stringValues());
+				}
+				pw = pwArray.get(ii);
+				pw.write(sb.toString());
+		        pw.close();
+			}
+
+	        System.out.println("CSV created!");
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+}
