@@ -114,6 +114,21 @@ public class KmeansClustering {
 			int p = findClosestCent(allStates.get(j), centroids);
 			clusters.get(p).add(allStates.get(j));
 		}
+		
+		// If we have any empty Clusters, fill them with one value from other clusters
+		Random rand = new Random();
+		for(int k=0; k<centroids.size(); k++){
+			if(clusters.get(k).size()==0){
+				for(int j=0; j<centroids.size(); j++){
+					if(clusters.get(j).size()>1){
+						int q = rand.nextInt(clusters.get(j).size());
+						clusters.get(k).add(clusters.get(j).get(q));
+						clusters.get(j).remove(q);
+						break;
+					}
+				}
+			}
+		}
 		return clusters;
 	}
 	
