@@ -7,21 +7,36 @@ import java.io.PrintWriter;
 import java.lang.Math;
 import java.util.Random;
 
-public class KmeansClustering {
+import assignment2.SystemState;
+
+
+// 
+
+public class KmeansClustering2 {
 	
-	public ArrayList<SystemState> allStates;
-	public double tol;
-	public int maxIters;
+	public static ArrayList<SystemState> allStates;
+	public static double tol;
+	public static int maxIters;
 	
-	public KmeansClustering(ArrayList<SystemState> allStates1, double tol1, int maxIter1){
-		this.allStates 	= allStates1;
-		this.tol 		= tol1;
-		this.maxIters 	= maxIter1;
+	public KmeansClustering2(ArrayList<SystemState> allStates1, double tol1, int maxIter1){
+		KmeansClustering2.allStates 	= allStates1;
+		KmeansClustering2.tol 		= tol1;
+		KmeansClustering2.maxIters 	= maxIter1;
 	}
 	
-	public ArrayList<ArrayList<SystemState>> clusterData(int k, int kOrg, String initMethod){
+	public static ArrayList<ArrayList<SystemState>> clusterData(int k, int kOrg, String initMethod){
+		
+		//double tol = 1e-16;
+		//String initMethod = "forgy";
+		//int maxIters = 1000;
+		//int kOrg =  4;
+		//int k    = 16;
 
 		boolean runLoop = true;
+		
+		//### Read In all Input Data
+		//FillStates fillings = new FillStates();
+		//ArrayList<SystemState> allStates = fillings.getStates("root", "root", "measurements");
 		
 		//### Initialize the Centroids (based on desired initMethod)
 		ArrayList<double[]> centroids = new ArrayList<double[]>();
@@ -50,9 +65,9 @@ public class KmeansClustering {
 		//### Downscaling to Original Number of Clusters:
 		clusters = downscaleClusters(clusters, kOrg);
 		
-//		for(int j=0; j<clusters.size(); j++){
-//			System.out.print(clusters.get(j).size()+"\t");
-//		}
+		for(int j=0; j<clusters.size(); j++){
+			System.out.print(clusters.get(j).size()+"\t");
+		}
 		
 		//CSV(clusters,kOrg);
 		
@@ -60,7 +75,7 @@ public class KmeansClustering {
 	}
 	
 	//##### Forgy Method for Picking Initial Centroids:
-	private ArrayList<double[]> pickCentroids(ArrayList<SystemState> states, int n){
+	private static ArrayList<double[]> pickCentroids(ArrayList<SystemState> states, int n){
 		ArrayList<double[]> centroids = new ArrayList<double[]>();
 		ArrayList<double[]> positions = new ArrayList<double[]>();
 		for(int k=0; k<states.size(); k++){
@@ -77,7 +92,7 @@ public class KmeansClustering {
 	}
 	
 	//##### RPM   Method for Picking Initial Centroids:
-	private ArrayList<double[]> pickCentroidsRPM(ArrayList<SystemState> states, int n){
+	private static ArrayList<double[]> pickCentroidsRPM(ArrayList<SystemState> states, int n){
 		ArrayList<double[]> centroids = new ArrayList<double[]>();
 		ArrayList<SystemState> tmpStates = new ArrayList<SystemState>();
 		tmpStates.addAll(states);
@@ -97,7 +112,7 @@ public class KmeansClustering {
 	}
 	
 	//##### Method for Calculating Euclidean Distance Between 2 Points
-	private double euclDist(double[] f1, double[] f2){
+	private static double euclDist(double[] f1, double[] f2){
 		double dist = 0;
 		for(int k=0; k<f1.length; k++){
 			dist+=(f1[k]-f2[k])*(f1[k]-f2[k]);
@@ -107,7 +122,7 @@ public class KmeansClustering {
 	}
 	
 	//##### Method for Finding Closest Centroid for a State
-	private int findClosestCent(SystemState fl, ArrayList<double[]> centroids){
+	private static int findClosestCent(SystemState fl, ArrayList<double[]> centroids){
 		int p=0;
 		double dist, minDist;
 		minDist = euclDist(fl.values(), centroids.get(0));
@@ -121,7 +136,7 @@ public class KmeansClustering {
 		return p;
 	}
 	
-	private ArrayList<ArrayList<SystemState>> splitClusters(ArrayList<SystemState> allStates, ArrayList<double[]> centroids){
+	private static ArrayList<ArrayList<SystemState>> splitClusters(ArrayList<SystemState> allStates, ArrayList<double[]> centroids){
 		ArrayList<ArrayList<SystemState>> clusters = new ArrayList<ArrayList<SystemState>>();
 		// Create Array Lists of States for Each Cluster
 		for(int k=0; k<centroids.size(); k++){
@@ -149,7 +164,7 @@ public class KmeansClustering {
 		return clusters;
 	}
 	
-	private ArrayList<double[]> calcNewCent(ArrayList<ArrayList<SystemState>> clusters){
+	private static ArrayList<double[]> calcNewCent(ArrayList<ArrayList<SystemState>> clusters){
 		ArrayList<double[]> newCentroids = new ArrayList<double[]>();
 		for(int k=0; k<clusters.size(); k++){
 			ArrayList<SystemState> cluster = clusters.get(k);
@@ -166,7 +181,7 @@ public class KmeansClustering {
 		return newCentroids;
 	}
 	
-	private double calcCentDiff(ArrayList<double[]> oldCentroids, ArrayList<double[]> newCentroids){
+	private static double calcCentDiff(ArrayList<double[]> oldCentroids, ArrayList<double[]> newCentroids){
 		double dist = 0;
 		for(int k=0; k<oldCentroids.size(); k++){
 			dist += euclDist(oldCentroids.get(k),newCentroids.get(k));
@@ -174,7 +189,7 @@ public class KmeansClustering {
 		return dist;
 	}
 	
-	private ArrayList<ArrayList<SystemState>> downscaleClusters(ArrayList<ArrayList<SystemState>> clusters, int n){
+	private static ArrayList<ArrayList<SystemState>> downscaleClusters(ArrayList<ArrayList<SystemState>> clusters, int n){
 		ArrayList<ArrayList<SystemState>> tmpClusters = new ArrayList<ArrayList<SystemState>>();
 		tmpClusters.addAll(clusters);
 		ArrayList<double[]> centroids = calcNewCent(tmpClusters);
@@ -206,7 +221,7 @@ public class KmeansClustering {
 		return tmpClusters;
 	}
 
-	public void CSV(ArrayList<ArrayList<SystemState>> Clusters , int k) {
+	public static void CSV(ArrayList<ArrayList<SystemState>> Clusters , int k) {
         PrintWriter pw;
 		try {
 			ArrayList<PrintWriter> pwArray = new ArrayList<PrintWriter>();

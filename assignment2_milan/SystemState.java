@@ -41,7 +41,8 @@ public class SystemState {
 		buses.add(tmpBus);
 	}
 	
-	//### Add New Data to Current State
+	// ###########################################################
+	// Add New Data to Current State
 	public void addData(String[] readData){
 		// readData[0] - Name column
 		// readData[1] - Time column
@@ -151,6 +152,8 @@ public class SystemState {
 		System.out.print("\n");
 	}
 	
+	// ###############################################################
+	// Returns the CSV String of State Variables (angles and voltages)
 	public String stringValues(){
 		String s = "";
 		for(int k=0; k<buses.size(); k++){
@@ -163,6 +166,30 @@ public class SystemState {
 		}
 		s += "\n";
 		return s;
+	}
+	
+	// ###############################################################
+	// Calculates the Variable Differential Distance of 2 Buses
+	public double calcDiffOfBuses(String id1, String id2){
+		int q1=-1, q2=-1;
+		for(int k=0; k<buses.size(); k++){
+			if(buses.get(k).busID.equals(id1)){
+				q1 = k;
+			}
+			if(buses.get(k).busID.equals(id2)){
+				q2 = k;
+			}
+		}
+		if(q1>=0 && q2>=0){
+			double dist = 0;
+			dist += (buses.get(q1).voltage-buses.get(q2).voltage)*(buses.get(q1).voltage-buses.get(q2).voltage);
+			dist += (buses.get(q1).angle  -buses.get(q2).angle  )*(buses.get(q1).angle  -buses.get(q2).angle  );
+			dist = Math.sqrt(dist);
+			return dist;
+		}
+		else{
+			return -1;
+		}
 	}
 	
 }
