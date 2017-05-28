@@ -12,7 +12,7 @@ public class TestMat {
 		FillStates fillings = new FillStates();
 		ArrayList<SystemState> allStates = fillings.getStates("root", "Callandor14", "measurements");
 		Kmean kmeanTest = new Kmean(allStates, 1e-8, 1000);
-		ArrayList<ArrayList<SystemState>> Clusters= kmeanTest.kMeanClustering(4);
+		ArrayList<ArrayList<SystemState>> Clusters= kmeanTest.kMeanClustering(16,4,"forgy");
 //		System.out.println(Clusters.size());
 		for(int ii=0; ii<Clusters.size(); ii++){
 			System.out.println("Cluster number " + (ii+1));

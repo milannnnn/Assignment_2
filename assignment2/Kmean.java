@@ -6,7 +6,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.jfree.ui.RefineryUtilities;
+
 import assignment2.SystemState;
+import assignment2_matteo.PlotClusters;
 
 public class Kmean {
 	
@@ -26,7 +29,7 @@ public class Kmean {
 	
 	// ##################################################################################
 	
-	public static ArrayList<ArrayList<SystemState>> kMeanClustering(int k, int kOrg, String initMethod) {
+	public ArrayList<ArrayList<SystemState>> kMeanClustering(int k, int kOrg, String initMethod) {
 			
 			// arbitrarily assign centroids from within the dataset
 			// create an arrayList of clusters, which are arraylists of SystemState
@@ -75,13 +78,20 @@ public class Kmean {
 				// deal with empty clusters
 				Clusters = fillIt( Clusters, k);
 				
+//				// plot 
+//				String titlePlot = "Clusters plot iter# " + keepTime;
+//				final PlotClusters demo = new PlotClusters(titlePlot,Clusters);
+//			    demo.pack();
+//			    RefineryUtilities.centerFrameOnScreen(demo);
+//			    demo.setVisible(true);
+				
 				// calculate the new centroids
 				ArrayList<double[]> newCentroid = calCentroids(Clusters);
 				// calculate distance old and new centroid
 				check = false;
 				for(int i=0; i<k; i++){
 					double delta = EuDistance( Centroid.get(i), newCentroid.get(i));
-					System.out.println("Delta cluster " + (i+1) + " " + delta );
+//					System.out.println("Delta cluster " + (i+1) + " " + delta );
 					if(delta > tol && keepTime < maxIter){
 						check=true;
 						// clear values
@@ -90,17 +100,23 @@ public class Kmean {
 				}
 				Centroid= newCentroid;
 				// if difference is less than a specified tolerance clustering is done
-			System.out.println(" iterations: " + keepTime);
+//			System.out.println(" iterations: " + keepTime);
 			}
-			
+			System.out.println(" iterations: " + keepTime);
 			Clusters = downscaleClusters(Clusters, kOrg);
-			
+//			
+//			// plot after down scaling
+//			String titlePlot = "Clusters plot iter# " + keepTime;
+//			final PlotClusters demo = new PlotClusters(titlePlot,Clusters);
+//		    demo.pack();
+//		    RefineryUtilities.centerFrameOnScreen(demo);
+//		    demo.setVisible(true);
 			
 			return Clusters;
 		}
 	// ##################################################################################
 	// deal with empty cluster
-	public static ArrayList<ArrayList<SystemState>> fillIt(ArrayList<ArrayList<SystemState>> Clusters, int k){
+	public ArrayList<ArrayList<SystemState>> fillIt(ArrayList<ArrayList<SystemState>> Clusters, int k){
 		// deal with empty clusters
 		Random rand = new Random();
 		for(int i=0; i<Clusters.size();i++){
@@ -122,14 +138,14 @@ public class Kmean {
 	
 	// ##################################################################################
 	// clear list
-	public static void clear(ArrayList<ArrayList<SystemState>> Clusters){
+	public void clear(ArrayList<ArrayList<SystemState>> Clusters){
 		for(int i=0; i<Clusters.size();i++){
 			Clusters.get(i).clear();
 		}
 	}
 	// ##################################################################################
     // forgy method
-	public static ArrayList<double[]> forgy(int k){
+	public ArrayList<double[]> forgy(int k){
 		// create a random number to assign centroid
 		ArrayList<Integer> bowl = new ArrayList<Integer>();
 		// fill the bowl with number from 0 to SystemList.size()
@@ -158,7 +174,7 @@ public class Kmean {
 	}
 	// ##################################################################################
     // random partition method
-	public static ArrayList<double[]> RPM(int k){
+	public ArrayList<double[]> RPM(int k){
 		ArrayList<double[]> Centroid = new ArrayList<double[]>();
 		ArrayList<ArrayList<SystemState>> Clusters = new ArrayList<ArrayList<SystemState>>();
 		for(int i=0; i<k;i++){
@@ -301,7 +317,7 @@ public class Kmean {
 		
 		// ##################################################################################
 		// export csv
-		public static void CSV(ArrayList<ArrayList<SystemState>> Clusters , int k) {
+		public void CSV(ArrayList<ArrayList<SystemState>> Clusters , int k) {
 	        PrintWriter pw;
 			try {
 				ArrayList<PrintWriter> pwArray = new ArrayList<PrintWriter>();

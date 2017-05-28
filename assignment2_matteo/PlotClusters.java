@@ -3,8 +3,11 @@ package assignment2_matteo;
 	
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Toolkit;
 import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -20,7 +23,7 @@ import assignment2.Kmean;
 import assignment2.SystemState;
 
 
-public class PlotClusters extends ApplicationFrame {
+public class PlotClusters extends Frame {
 
 	public PlotClusters(final String title, ArrayList<ArrayList<SystemState>> Clusters) {
 
@@ -54,7 +57,8 @@ public class PlotClusters extends ApplicationFrame {
 		chart.getXYPlot().setDomainGridlinePaint(Color.GRAY);
 	    final ChartPanel chartPanel = new ChartPanel(chart);
 	    chartPanel.setPreferredSize(new java.awt.Dimension( (int) (widthScreen*0.6), (int) (heightScreen*0.6)));
-	    setContentPane(chartPanel);
+//	    setContentPane(chartPanel);
+	    JOptionPane.showMessageDialog(null, chartPanel, "", JOptionPane.PLAIN_MESSAGE);
 
 	}
 	
@@ -77,20 +81,20 @@ public class PlotClusters extends ApplicationFrame {
 		}
 	}
 	// ##################################################################################
-	public static void main(final String[] args) {
-
-		FillStates fillings = new FillStates();
-		ArrayList<SystemState> allStates = fillings.getStates("root", "Callandor14", "measurements");
-		Kmean kmeanTest = new Kmean(allStates, 1e-16, 1000);
-		ArrayList<ArrayList<SystemState>> Clusters= kmeanTest.kMeanClustering(16,4,"forgy");
-		for(int ii=0; ii<Clusters.size(); ii++){
-			System.out.println("Cluster number " + (ii+1) + " Cluster size " + Clusters.get(ii).size());
-		}
-	    final PlotClusters demo = new PlotClusters("Clusters plot",Clusters);
-	    demo.pack();
-	    RefineryUtilities.centerFrameOnScreen(demo);
-	    demo.setVisible(true);
-	}
+//	public static void main(final String[] args) {
+//
+//		FillStates fillings = new FillStates();
+//		ArrayList<SystemState> allStates = fillings.getStates("root", "Callandor14", "measurements");
+//		Kmean kmeanTest = new Kmean(allStates, 1e-16, 1000);
+//		ArrayList<ArrayList<SystemState>> Clusters= kmeanTest.kMeanClustering(16,4,"forgy");
+//		for(int ii=0; ii<Clusters.size(); ii++){
+//			System.out.println("Cluster number " + (ii+1) + " Cluster size " + Clusters.get(ii).size());
+//		}
+//	    final PlotClusters demo = new PlotClusters("Clusters plot",Clusters);
+//	    demo.pack();
+//	    RefineryUtilities.centerFrameOnScreen(demo);
+//	    demo.setVisible(true);
+//	}
 }
 
 

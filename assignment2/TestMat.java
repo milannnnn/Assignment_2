@@ -2,8 +2,11 @@ package assignment2;
 
 import java.util.ArrayList;
 
+import org.jfree.ui.RefineryUtilities;
+
 import assignment2.FillStates;
 import assignment2.SystemState;
+import assignment2_matteo.PlotClusters;
 
 public class TestMat {
 
@@ -22,5 +25,9 @@ public class TestMat {
 //				Clusters.get(ii).get(i).printValues();
 //			}
 		}
+		final PlotClusters demo = new PlotClusters("Clusters plot",Clusters);
+	    demo.pack();
+	    RefineryUtilities.centerFrameOnScreen(demo);
+	    demo.setVisible(true);
 	}
 }
