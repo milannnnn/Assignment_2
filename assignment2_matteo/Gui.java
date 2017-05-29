@@ -5,28 +5,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import org.jfree.ui.RefineryUtilities;
-
-import assignment2.FillStates;
-import assignment2.Kmean;
-import assignment2.SystemState;
 
 @SuppressWarnings("serial")
 public class Gui extends JFrame {
@@ -47,6 +34,7 @@ public class Gui extends JFrame {
 	private JTextArea errorText;
 	private JTextField numTempClusters;
 	private JTextField numTempClustersValue;
+	private JTextField KNNTitle;
 	private JTextField maxIterTitle;
 	private JTextField maxIterText;
 	private JTextField neighborsNumTitle;
@@ -56,8 +44,11 @@ public class Gui extends JFrame {
 	private JRadioButton cusb;
 	private JRadioButton forgybutton;
 	private JRadioButton RPMbutton;
+	private JRadioButton topologybutton;
+	private JRadioButton generalbutton;
 	private ButtonGroup groupDC;
 	private ButtonGroup groupF_RPM;
+	private ButtonGroup grouplabel;
 	private JButton buttCluster;
 	private JButton buttPlot;
 	private JButton buttKNN;
@@ -68,13 +59,14 @@ public class Gui extends JFrame {
 	boolean	customOpt = false;
 	// set default variables
 	private String USER = "root";
-	private String PASS = "Callandor14";
+	private String PASS = "root";
 	private int tempClusters = 16;
 	private String KmeanMethod = "forgy";
 	ArrayList<ArrayList<SystemState>> Clusters;
 	private int maxIter = 100;
 	private int clusterNum = 4;
 	private int neighborNum = 6;
+	private boolean labelingGen = false;
 	
 	// ############################################################################################################
 	public Gui(){
@@ -93,15 +85,15 @@ public class Gui extends JFrame {
 		if(widthScreen>=1920){
 			widthScreen  = 1920.0;
 			heightScreen = 1080.0;
-			consoleHeight = (int) (0.475*heightScreen);
+			consoleHeight = (int) (0.405*heightScreen);
 			consoleWidth  = (int) (0.495* widthScreen);
 		}
 		else if(widthScreen==1366){
-			consoleHeight = (int) (0.320*heightScreen);
+			consoleHeight = (int) (0.3*heightScreen);
 			consoleWidth  = (int) (0.495* widthScreen);
 		}
 		else{
-			consoleHeight = (int) (0.250*heightScreen);
+			consoleHeight = (int) (0.22*heightScreen);
 			consoleWidth  = (int) (0.495* widthScreen);
 		}
 		
@@ -193,20 +185,20 @@ public class Gui extends JFrame {
 		maxIterText.setToolTipText("Set number of maximum iterations and press enter");
 		add(maxIterText);
 		// down scaling options
-		Scaletitle = new JTextField("DOWN-SCALING OPTIONS", textWidth);
+		Scaletitle = new JTextField("UP-SCALING OPTIONS", textWidth);
 		Scaletitle.setFont(new Font("Serif",Font.BOLD, 18));
 		Scaletitle.setHorizontalAlignment(JTextField.CENTER);
 		Scaletitle.setBackground(Color.GRAY);
 		Scaletitle.setEditable(false);
 		add(Scaletitle);
 		// down Scale check box
-		downScaleCB = new JCheckBox("Apply down-scaling");
+		downScaleCB = new JCheckBox("Apply up-scaling");
 		downScaleCB.setFont(new Font("Serif",Font.BOLD, 18));
 		downScaleCB.setSelected(false);
 		downScaleCB.setEnabled(false);
 		add(downScaleCB);
 		// number of temporary clusters
-		numTempClusters = new JTextField("Temporary Clusters Number",20);
+		numTempClusters = new JTextField("Intermediate Clusters Number",20);
 		numTempClusters.setBorder(null);
 		numTempClusters.setHorizontalAlignment(JTextField.CENTER);
 		numTempClusters.setFont(new Font("Serif",Font.BOLD, 18));
@@ -221,8 +213,8 @@ public class Gui extends JFrame {
 		numTempClustersValue.setToolTipText("Set number of temporary clusters and press enter");
 		add(numTempClustersValue);
 		
-		// create buttons to execute K-mean and KNN
-		Actiontitle = new JTextField("CREATION SECTION", textWidth);
+		// create buttons to execute K-mean 
+		Actiontitle = new JTextField("K-MEAN SECTION", textWidth);
 		Actiontitle.setFont(new Font("Serif",Font.BOLD, 18));
 		Actiontitle.setHorizontalAlignment(JTextField.CENTER);
 		Actiontitle.setBackground(Color.GRAY);
@@ -239,25 +231,48 @@ public class Gui extends JFrame {
 		exportButton.setFont(new Font("Serif",Font.BOLD, 18));
 		exportButton.setEnabled(false);
 		add(exportButton);
+		// create radio buttons to choose labeling method
+		topologybutton = new JRadioButton("Topology based labeling", true);
+		topologybutton.setFont(new Font("Serif",Font.BOLD, 18));
+		topologybutton.setEnabled(false);
+		// true is checked, false in unchecked
+		generalbutton = new JRadioButton("General labeling", false);
+		generalbutton.setFont(new Font("Serif",Font.BOLD, 18));
+		generalbutton.setEnabled(false);
+		add(topologybutton);
+		add(generalbutton);
+		// group the radiobuttons together
+		grouplabel = new ButtonGroup();
+		grouplabel.add(topologybutton);
+		grouplabel.add(generalbutton);
+		
+		// create buttons to execute KNN
+		KNNTitle = new JTextField("KNN SECTION", textWidth);
+		KNNTitle.setFont(new Font("Serif",Font.BOLD, 18));
+		KNNTitle.setHorizontalAlignment(JTextField.CENTER);
+		KNNTitle.setBackground(Color.GRAY);
+		KNNTitle.setEditable(false);
+		add(KNNTitle);
 		buttKNN = new JButton("Classify Test-set");
 		buttKNN.setFont(new Font("Serif",Font.BOLD, 18));
+		buttKNN.setEnabled(false);
 		add(buttKNN);
-		
 		// number of temporary clusters
 		neighborsNumTitle = new JTextField("Neighbors Number",15);
 		neighborsNumTitle.setBorder(null);
 		neighborsNumTitle.setHorizontalAlignment(JTextField.CENTER);
 		neighborsNumTitle.setFont(new Font("Serif",Font.BOLD, 18));
 		neighborsNumTitle.setEditable(false);
-		neighborsNumTitle.setEnabled(true);
+		neighborsNumTitle.setEnabled(false);
 		add(neighborsNumTitle);
 		neighborsNumText = new JTextField("6", 5);
 		neighborsNumText.setFont(new Font("Serif",Font.PLAIN, 18));
 		neighborsNumText.setHorizontalAlignment(JTextField.CENTER);
-		neighborsNumText.setEditable(true);
-		neighborsNumText.setEnabled(true);
+		neighborsNumText.setEditable(false);
+		neighborsNumText.setEnabled(false);
 		neighborsNumText.setToolTipText("Set number of neighbors to consider and press enter");
 		add(neighborsNumText);
+		
 		
 		// create console to display outputs
 		errorText = new JTextArea();
@@ -306,11 +321,11 @@ public class Gui extends JFrame {
 		// handel KNN
 		ButtonKNNHandler buttonKNNHandler = new ButtonKNNHandler();
 		buttKNN.addActionListener(buttonKNNHandler);
+		// handle labeling
+		labelHandler clickhandler1 = new labelHandler();
+		topologybutton.addItemListener(clickhandler1);
+		generalbutton.addItemListener(clickhandler1);
 	}
-
-	
-	
-	 
 	// ############################################################################################################
 	// class to plot the console output in the GUI
 	public class CustomOutputStream extends OutputStream {
@@ -358,9 +373,13 @@ public class Gui extends JFrame {
 				maxIterText.setEditable(customOpt);
 				maxIterText.setEnabled(customOpt);
 				maxIterTitle.setEnabled(customOpt);
-				neighborsNumTitle.setEnabled(!customOpt);
-				neighborsNumText.setEditable(!customOpt);
-				neighborsNumText.setEnabled(!customOpt);
+				neighborsNumTitle.setEnabled(customOpt);
+				neighborsNumText.setEditable(customOpt);
+				neighborsNumText.setEnabled(customOpt);
+				buttKNN.setEnabled(customOpt);
+				topologybutton.setEnabled(customOpt);
+				generalbutton.setEnabled(customOpt);
+				labelingGen = false;
 			}
 			// if custom options are selected
 			else if(cusb.isSelected() == true){
@@ -374,6 +393,8 @@ public class Gui extends JFrame {
 				neighborsNumTitle.setEnabled(!customOpt);
 				neighborsNumText.setEditable(!customOpt);
 				neighborsNumText.setEnabled(!customOpt);
+				buttKNN.setEnabled(!customOpt);
+				exportButton.setEnabled(!customOpt);
 			}
 		}
 	}
@@ -397,13 +418,12 @@ public class Gui extends JFrame {
 				forgybutton.setEnabled(customOpt);
 				downScaleCB.setEnabled(customOpt);
 				buttCluster.setEnabled(customOpt);
-				buttKNN.setEnabled(customOpt);
 				maxIterText.setEditable(customOpt);
 				maxIterText.setEnabled(customOpt);
 				maxIterTitle.setEnabled(customOpt);
-				neighborsNumTitle.setEnabled(customOpt);
-				neighborsNumText.setEditable(customOpt);
-				neighborsNumText.setEnabled(customOpt);
+				topologybutton.setEnabled(customOpt);
+				generalbutton.setEnabled(customOpt);
+			
 			}
 			// when down-scale check-box is checked
 			else if(downScaleCB.isSelected()){
@@ -515,7 +535,13 @@ public class Gui extends JFrame {
 					FillStates fillings = new FillStates();
 					ArrayList<SystemState> allStates = fillings.getStates(USER, PASS, "measurements");
 					Kmean kmeanTest = new Kmean(allStates, 1e-16, maxIter);
-					Clusters= kmeanTest.kMeanClustering(tempClusters,clusterNum,KmeanMethod);
+					Clusters = kmeanTest.kMeanClustering(tempClusters,clusterNum,KmeanMethod);
+					Label myLabel = new Label();
+					if(labelingGen){
+						myLabel.declareLabelsGeneral(Clusters);
+					}else{
+						myLabel.declareLabelsSpecific(Clusters);	
+					}
 					JPanel clusterPanel = new JPanel();
 					clusterPanel.setPreferredSize(new Dimension((int)(widthScreen*0.91),(int)(heightScreen*0.81)));
 					for(int ii=0; ii<Clusters.size(); ii++){
@@ -529,6 +555,10 @@ public class Gui extends JFrame {
 					JOptionPane.showMessageDialog(null, clusterPanel,"Clusters" , JOptionPane.PLAIN_MESSAGE);
 					buttPlot.setEnabled(true);
 					exportButton.setEnabled(true);
+					buttKNN.setEnabled(true);
+					neighborsNumTitle.setEnabled(customOpt);
+					neighborsNumText.setEditable(customOpt);
+					neighborsNumText.setEnabled(customOpt);
 				}
 			}.start();
 		}
@@ -539,8 +569,8 @@ public class Gui extends JFrame {
 		String[] names = new String[tableCluster[0].length];
 		names[0] = "time";
 		for( int i=1; i<tableCluster[0].length; i += 2){
-			names[i] = "ANG_" + (i/2);
-			names[i+1] = "VOL_" + (i/2);
+			names[i] = "ANG_" + ((i/2)+1);
+			names[i+1] = "VOL_" + (i/2+1);
 		}
 		// create table with given matrix and column names
 		JTable Table = new JTable(tableCluster, names );
@@ -564,13 +594,13 @@ public class Gui extends JFrame {
 		scrollPane.setPreferredSize( new Dimension((int)(0.5*0.8*widthScreen),(int)(0.5*0.7*heightScreen)));
 		// add scroll pane to window
 		if(clusNum==0 || clusNum== 2){
-			JTextField clusterTitle = new JTextField("CLUSTER " + (clusNum+1), (int) (0.5*0.8*widthScreen/15));
+			JTextField clusterTitle = new JTextField("CLUSTER " + Clusters.get(clusNum).get(0).label, (int) (0.5*0.8*widthScreen/15));
 			clusterTitle.setFont(new Font("Serif",Font.BOLD, 18));
 			clusterTitle.setHorizontalAlignment(JTextField.CENTER);
 			clusterTitle.setBackground(Color.GRAY);
 			clusterTitle.setEditable(false);
 			clusterPanel.add(clusterTitle, null);
-			JTextField clusterTitle1 = new JTextField("CLUSTER " + (clusNum+2), (int) (0.5*0.8*widthScreen/15));
+			JTextField clusterTitle1 = new JTextField("CLUSTER " + Clusters.get(clusNum+1).get(0).label, (int) (0.5*0.8*widthScreen/15));
 			clusterTitle1.setFont(new Font("Serif",Font.BOLD, 18));
 			clusterTitle1.setHorizontalAlignment(JTextField.CENTER);
 			clusterTitle1.setBackground(Color.GRAY);
@@ -616,14 +646,49 @@ public class Gui extends JFrame {
 			new Thread(){
 				public void run(){
 					FillStates fillings = new FillStates();
-					ArrayList<SystemState> learnSet = fillings.getStates(USER, PASS, "measurements");
-					ArrayList<SystemState> testSet = fillings.getStates(USER, PASS, "analog_values");
-					ArrayList<String> labels = KNNmethod.KNN( neighborNum,  testSet, learnSet, clusterNum );
-					for(int i=0; i<labels.size(); i++){
-						System.out.println("measurement # " + (i+1) + " belongs to cluster # " + labels.get(i));
+					ArrayList<SystemState> learnSet = new ArrayList<SystemState>();
+					for (int i=0; i<Clusters.size();i++){
+						learnSet.addAll(Clusters.get(i));
 					}
+					ArrayList<SystemState> testSet = fillings.getStates(USER, PASS, "analog_values");
+					for (int i=0; i<testSet.size();i++){
+						testSet.get(i).reNormalize();
+						testSet.get(i).normalize(learnSet.get(0).minAngles, learnSet.get(0).maxAngles, learnSet.get(0).minVolts, learnSet.get(0).maxVolts);
+						
+					}
+					ArrayList<String> labels = KNNmethod.KNN( neighborNum,  testSet, learnSet, clusterNum );
+					ArrayList<ArrayList<SystemState>> testCluters= new ArrayList<ArrayList<SystemState>>();
+					for(int k=0; k<clusterNum; k++){
+						testCluters.add(new ArrayList<SystemState>());
+					}
+					String[] labelLabel = {"High Load","Low Load","Generator Outage","Line Outage"};
+					for(int i=0; i<labels.size(); i++){
+						System.out.println("measurement # " + (i+1) + " belongs to cluster " + labels.get(i));
+						testSet.get(i).label = labels.get(i);
+						for(int j=0; j<labelLabel.length; j++){
+							if(labelLabel[j].equals(labels.get(i))){
+								testCluters.get(j).add(testSet.get(i));
+							}
+						}
+					}
+					PlotClusters  plot2 = new PlotClusters("Test set classification",  testCluters);
+					plot2.pack();
+				    RefineryUtilities.centerFrameOnScreen(plot2);
+				    plot2.setVisible(false);
 				}
 			}.start();
+		}
+	}
+	// ############################################################################################################
+	// handle default-custom options with radio buttons
+	private class labelHandler implements ItemListener{
+		public void itemStateChanged(ItemEvent event){
+			if(topologybutton.isSelected()){
+				labelingGen = false;
+			}
+			else if(generalbutton.isSelected()){
+				labelingGen = true;
+			}
 		}
 	}
 }

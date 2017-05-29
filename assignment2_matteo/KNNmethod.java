@@ -2,7 +2,7 @@ package assignment2_matteo;
 
 import java.util.*;
 
-import assignment2.SystemState;
+//import assignment2.SystemState;
 
 
 public class KNNmethod {
@@ -20,11 +20,6 @@ public class KNNmethod {
 			String label = sortState( NeighborsList, query, numLabels);
 			labels.add(label);
 		}
-//		System.out.println("tested List");
-//		FileLoad.printResults(TestedflowerList);
-//		
-//		double errorCalc = errorCalc(testList, TestedflowerList)*100;
-//		System.out.println("error % " + errorCalc);
 		return labels;
 	}
 	
@@ -51,23 +46,15 @@ public class KNNmethod {
 			// calculate variable dist – square of Euclidean distance from query measurements to flower’s dimensional parameters
 			double distance = EuDistance(query, newSystemState.values());
 			// replace null with label of the state
-			resultList.add(new Result(distance, "label_1"));
+			resultList.add(new Result(distance, newSystemState.label));
 		}
 		
 //		sort the results from closest to further
 		Collections.sort(resultList, new DistanceComparator());
-//		ArrayList<Result> resultList1 = new ArrayList<Result>(resultList);
 		
 		for(int i=0; i<k; i++){
 			NeighborsList.add(resultList.get(i));
 		}
-		
-//		for(int x = 0; x < resultList.size(); x++){
-//			System.out.println(resultList.get(x).type + "…" + resultList.get(x).distance);
-//		}
-//		for(int x = 0; x < NeighborsList.size(); x++){
-//			System.out.println(NeighborsList.get(x).type + "…" + NeighborsList.get(x).distance);
-//		}
 		
 		return NeighborsList;
 	 }
@@ -77,12 +64,12 @@ public class KNNmethod {
 	 private static String  sortState(ArrayList<Result> NeighborsList, double[] query, int numLabels){
 		 String label = "";
 		 double[] labelArray = new double[numLabels];
+		 String[] labelLabel = {"High Load","Low Load","Generator Outage","Line Outage"};
 		 // counts how many System States belong to each cluster
 		 for(Result neighbor : NeighborsList){
 			 label = neighbor.label;
 			 for(int i=0; i<numLabels; i++){
-				 if(label.equals("label_" + (i+1))){
-	//						System.out.println("hello bitch");
+				 if(label.equals(labelLabel[i])){
 				 	labelArray[i]++;
 				 }
 			 }
@@ -108,7 +95,7 @@ public class KNNmethod {
 		 }
 		 
 		 // create labeled SystemState
-		 label = "label_" + (maxIndex+1);
+		 label = labelLabel[maxIndex];
 		 return label;
 	 }
 }

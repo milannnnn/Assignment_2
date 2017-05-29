@@ -104,7 +104,9 @@ public class Kmean {
 			}
 			System.out.println(" iterations: " + keepTime);
 			Clusters = downscaleClusters(Clusters, kOrg);
-//			
+			if(kOrg < k){
+				System.out.println("Downscaling successfully applied!");
+			}
 //			// plot after down scaling
 //			String titlePlot = "Clusters plot iter# " + keepTime;
 //			final PlotClusters demo = new PlotClusters(titlePlot,Clusters);
