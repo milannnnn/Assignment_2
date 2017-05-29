@@ -49,6 +49,8 @@ public class Gui extends JFrame {
 	private JTextField numTempClustersValue;
 	private JTextField maxIterTitle;
 	private JTextField maxIterText;
+	private JTextField neighborsNumTitle;
+	private JTextField neighborsNumText;
 	// buttons
 	private JRadioButton defb;
 	private JRadioButton cusb;
@@ -72,6 +74,7 @@ public class Gui extends JFrame {
 	ArrayList<ArrayList<SystemState>> Clusters;
 	private int maxIter = 100;
 	private int clusterNum = 4;
+	private int neighborNum = 6;
 	
 	// ############################################################################################################
 	public Gui(){
@@ -138,6 +141,7 @@ public class Gui extends JFrame {
 		tf1.setToolTipText("insert MySQL USERNAME and press Enter");
 		// by default they are set not editable
 		tf1.setEditable(customOpt);
+		tf1.setEnabled(false);
 		add(tf1);
 		
 		tf2title = new JTextField("MySQL PASSWORD", textWidth);
@@ -150,6 +154,7 @@ public class Gui extends JFrame {
 		tf2.setFont(new Font("Serif",Font.PLAIN, 18));
 		tf2.setEditable(customOpt);
 		tf2.setToolTipText("insert MySQL PASSWORD and press Enter");
+		tf2.setEnabled(false);
 		add(tf2);
 		
 		// random partition - forgy method radio buttons
@@ -238,6 +243,22 @@ public class Gui extends JFrame {
 		buttKNN.setFont(new Font("Serif",Font.BOLD, 18));
 		add(buttKNN);
 		
+		// number of temporary clusters
+		neighborsNumTitle = new JTextField("Neighbors Number",15);
+		neighborsNumTitle.setBorder(null);
+		neighborsNumTitle.setHorizontalAlignment(JTextField.CENTER);
+		neighborsNumTitle.setFont(new Font("Serif",Font.BOLD, 18));
+		neighborsNumTitle.setEditable(false);
+		neighborsNumTitle.setEnabled(true);
+		add(neighborsNumTitle);
+		neighborsNumText = new JTextField("6", 5);
+		neighborsNumText.setFont(new Font("Serif",Font.PLAIN, 18));
+		neighborsNumText.setHorizontalAlignment(JTextField.CENTER);
+		neighborsNumText.setEditable(true);
+		neighborsNumText.setEnabled(true);
+		neighborsNumText.setToolTipText("Set number of neighbors to consider and press enter");
+		add(neighborsNumText);
+		
 		// create console to display outputs
 		errorText = new JTextArea();
 		// set text color to red
@@ -279,6 +300,12 @@ public class Gui extends JFrame {
 		// handle CSV button
 		ButtonCSVHandler buttonCSVHandler = new ButtonCSVHandler();
 		exportButton.addActionListener(buttonCSVHandler);
+		// handle neighbors number
+		EnterHandlerNeighNum enterHandlerNeighNum = new EnterHandlerNeighNum();
+		neighborsNumText.addActionListener(enterHandlerNeighNum);
+		// handel KNN
+		ButtonKNNHandler buttonKNNHandler = new ButtonKNNHandler();
+		buttKNN.addActionListener(buttonKNNHandler);
 	}
 
 	
@@ -316,6 +343,8 @@ public class Gui extends JFrame {
 				customOpt=false;
 				tf1.setEditable(customOpt);
 				tf2.setEditable(customOpt);
+				tf1.setEnabled(customOpt);
+				tf2.setEnabled(customOpt);
 				RPMbutton.setEnabled(customOpt);
 				forgybutton.setEnabled(customOpt);
 				downScaleCB.setEnabled(customOpt);
@@ -329,14 +358,22 @@ public class Gui extends JFrame {
 				maxIterText.setEditable(customOpt);
 				maxIterText.setEnabled(customOpt);
 				maxIterTitle.setEnabled(customOpt);
+				neighborsNumTitle.setEnabled(!customOpt);
+				neighborsNumText.setEditable(!customOpt);
+				neighborsNumText.setEnabled(!customOpt);
 			}
 			// if custom options are selected
 			else if(cusb.isSelected() == true){
 				customOpt=true;
+				tempClusters = 4;
 				tf1.setEditable(customOpt);
+				tf1.setEnabled(customOpt);
 				buttCluster.setEnabled(!customOpt);
 				buttKNN.setEnabled(!customOpt);
 				buttPlot.setEnabled(!customOpt);
+				neighborsNumTitle.setEnabled(!customOpt);
+				neighborsNumText.setEditable(!customOpt);
+				neighborsNumText.setEnabled(!customOpt);
 			}
 		}
 	}
@@ -350,6 +387,7 @@ public class Gui extends JFrame {
 				USER = event.getActionCommand();
 				JOptionPane.showMessageDialog(null, "USERNAME successfully inserted");
 				tf2.setEditable(customOpt);
+				tf2.setEnabled(customOpt);
 			}
 			// when enter is pressed on PASS field
 			else if(event.getSource()==tf2){
@@ -363,6 +401,9 @@ public class Gui extends JFrame {
 				maxIterText.setEditable(customOpt);
 				maxIterText.setEnabled(customOpt);
 				maxIterTitle.setEnabled(customOpt);
+				neighborsNumTitle.setEnabled(customOpt);
+				neighborsNumText.setEditable(customOpt);
+				neighborsNumText.setEnabled(customOpt);
 			}
 			// when down-scale check-box is checked
 			else if(downScaleCB.isSelected()){
@@ -375,6 +416,7 @@ public class Gui extends JFrame {
 				numTempClusters.setEnabled(!customOpt);
 				numTempClustersValue.setEnabled(!customOpt);
 				numTempClustersValue.setEditable(!customOpt);
+				tempClusters = 4;
 			}
 		}
 	}// ############################################################################################################
@@ -382,8 +424,14 @@ public class Gui extends JFrame {
 	private class EnterHandleriter implements ActionListener{
 		public void actionPerformed(ActionEvent event){
 			if(event.getSource() == maxIterText){
-				maxIter = Integer.parseInt(event.getActionCommand());
-				JOptionPane.showMessageDialog(null, "Maximum iteration successfully inserted");
+				try{
+					maxIter = Integer.parseInt(event.getActionCommand());
+					JOptionPane.showMessageDialog(null, "Maximum iteration successfully inserted");
+				}catch(NumberFormatException ex){ 
+					JOptionPane.showMessageDialog(null, "Maximum iteration has to be a number!");
+					maxIterText.setText("100");
+					maxIter = 100;
+				}
 			}
 	
 		}
@@ -393,13 +441,24 @@ public class Gui extends JFrame {
 	private class EnterHandlerCluster implements ActionListener{
 		public void actionPerformed(ActionEvent event){
 			if(event.getSource() == numTempClustersValue){
-				tempClusters = Integer.parseInt(event.getActionCommand());
-				if(tempClusters<4){
-					tempClusters = 4;
-					JOptionPane.showMessageDialog(null, "Temporary clusters number has to be greater than 4!");
-					numTempClustersValue.setText("4");
-				}else{
-					JOptionPane.showMessageDialog(null, "Temporary clusters number successfully inserted");
+				try{
+					tempClusters = Integer.parseInt(event.getActionCommand());
+					if(tempClusters<4){
+						tempClusters = 4;
+						JOptionPane.showMessageDialog(null, "Temporary clusters number has to be greater or equal to 4!");
+						numTempClustersValue.setText("4");
+					}else if(tempClusters>100){
+						tempClusters = 100;
+						JOptionPane.showMessageDialog(null, "Temporary clusters cannot be greater than 100!");
+						numTempClustersValue.setText("100");
+					}
+					else{
+						JOptionPane.showMessageDialog(null, "Temporary clusters number successfully inserted");
+					}
+				}catch(NumberFormatException ex){ 
+					JOptionPane.showMessageDialog(null, "Temporary clusters number has to be a number!");
+					numTempClustersValue.setText("16");
+					tempClusters = 16;
 				}
 			}
 			
@@ -414,6 +473,34 @@ public class Gui extends JFrame {
 				}else if(RPMbutton.isSelected()){
 					KmeanMethod = "RPM";
 				}
+			}
+		}
+		// ############################################################################################################
+		// handle Neighbors number's number insertion  
+		private class EnterHandlerNeighNum implements ActionListener{
+			public void actionPerformed(ActionEvent event){
+				if(event.getSource() == neighborsNumText){
+					try{
+						neighborNum = Integer.parseInt(event.getActionCommand());
+						if(neighborNum < 2){
+							neighborNum = 2;
+							JOptionPane.showMessageDialog(null, "Neighbors number has to be at least 2!");
+							neighborsNumText.setText("1");
+						}else if(neighborNum>100){
+							neighborNum = 100;
+							JOptionPane.showMessageDialog(null, "Neighbors number cannot be greater than 100!");
+							neighborsNumText.setText("100");
+						}
+						else{
+							JOptionPane.showMessageDialog(null, "Neighbors number successfully inserted");
+						}
+					}catch(NumberFormatException ex){ 
+						JOptionPane.showMessageDialog(null, "Neighbors number has to be a number!");
+						neighborNum = 6;
+						neighborsNumText.setText("6");
+					}
+				}
+				
 			}
 		}
 	// ############################################################################################################
@@ -518,6 +605,23 @@ public class Gui extends JFrame {
 				public void run(){
 			Kmean.CSV(Clusters, clusterNum);
 			JOptionPane.showMessageDialog(null, "Clusters succesfully exported in CSV");
+				}
+			}.start();
+		}
+	}
+//	############################################################################################################
+	//	handle KNN button
+	private class ButtonKNNHandler implements ActionListener{					
+		public void actionPerformed(ActionEvent event){
+			new Thread(){
+				public void run(){
+					FillStates fillings = new FillStates();
+					ArrayList<SystemState> learnSet = fillings.getStates(USER, PASS, "measurements");
+					ArrayList<SystemState> testSet = fillings.getStates(USER, PASS, "analog_values");
+					ArrayList<String> labels = KNNmethod.KNN( neighborNum,  testSet, learnSet, clusterNum );
+					for(int i=0; i<labels.size(); i++){
+						System.out.println("measurement # " + (i+1) + " belongs to cluster # " + labels.get(i));
+					}
 				}
 			}.start();
 		}

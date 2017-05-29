@@ -51,7 +51,7 @@ public class KNNmethod {
 			// calculate variable dist – square of Euclidean distance from query measurements to flower’s dimensional parameters
 			double distance = EuDistance(query, newSystemState.values());
 			// replace null with label of the state
-			resultList.add(new Result(distance, null));
+			resultList.add(new Result(distance, "label_1"));
 		}
 		
 //		sort the results from closest to further
@@ -110,24 +110,7 @@ public class KNNmethod {
 		 // create labeled SystemState
 		 label = "label_" + (maxIndex+1);
 		 return label;
-		 
 	 }
-	 
-	//##################################################################################
-	// calculate error
-//	 public static double errorCalc(ArrayList<Flower> correctList, ArrayList<Flower> predictedList){
-//		 double err=0;
-//		 for(int i=0; i<correctList.size(); i++){
-//			 if(correctList.get(i).type.equals(predictedList.get(i).type)){
-//				 System.out.println("Flower # " + (i+1) + " correctly assigned");
-//			 }else{
-//				 System.out.println("Flower # " + (i+1) + " wrongly assigned");
-//				 err++;
-//			 }
-//		 }
-//		 double relativeErr = err/correctList.size();
-//		 return relativeErr;
-//	 }
 }
 
 
