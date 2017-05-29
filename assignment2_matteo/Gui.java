@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import org.jfree.ui.RefineryUtilities;
@@ -57,17 +59,19 @@ public class Gui extends JFrame {
 	private JButton buttCluster;
 	private JButton buttPlot;
 	private JButton buttKNN;
+	private JButton exportButton;
 	// checkBox
 	private JCheckBox downScaleCB;
 	// set boolean variable to allow the choice of custom options
 	boolean	customOpt = false;
 	// set default variables
 	private String USER = "root";
-	private String PASS = "root";
+	private String PASS = "Callandor14";
 	private int tempClusters = 16;
 	private String KmeanMethod = "forgy";
 	ArrayList<ArrayList<SystemState>> Clusters;
 	private int maxIter = 100;
+	private int clusterNum = 4;
 	
 	// ############################################################################################################
 	public Gui(){
@@ -76,8 +80,6 @@ public class Gui extends JFrame {
 		super("Project 2");
 		// use a pre-determined layout, i.e. FlowLayout
 		setLayout(new FlowLayout());
-		
-//		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		
 		// get screen size
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -170,7 +172,7 @@ public class Gui extends JFrame {
 		groupF_RPM= new ButtonGroup();
 		groupF_RPM.add(forgybutton);
 		groupF_RPM.add(RPMbutton);
-		// max iter
+		// max iteration section
 		maxIterTitle = new JTextField("Maximum iteration",20);
 		maxIterTitle.setBorder(null);
 		maxIterTitle.setHorizontalAlignment(JTextField.CENTER);
@@ -183,7 +185,7 @@ public class Gui extends JFrame {
 		maxIterText.setHorizontalAlignment(JTextField.CENTER);
 		maxIterText.setEditable(false);
 		maxIterText.setEnabled(false);
-		maxIterText.setToolTipText("Set number of maximum iteration and press enter");
+		maxIterText.setToolTipText("Set number of maximum iterations and press enter");
 		add(maxIterText);
 		// down scaling options
 		Scaletitle = new JTextField("DOWN-SCALING OPTIONS", textWidth);
@@ -228,10 +230,13 @@ public class Gui extends JFrame {
 		buttPlot.setFont(new Font("Serif",Font.BOLD, 18));
 		buttPlot.setEnabled(false);
 		add(buttPlot);
+		exportButton = new JButton("Export CSV");
+		exportButton.setFont(new Font("Serif",Font.BOLD, 18));
+		exportButton.setEnabled(false);
+		add(exportButton);
 		buttKNN = new JButton("Classify Test-set");
 		buttKNN.setFont(new Font("Serif",Font.BOLD, 18));
 		add(buttKNN);
-		
 		
 		// create console to display outputs
 		errorText = new JTextArea();
@@ -271,6 +276,9 @@ public class Gui extends JFrame {
 		// handle plot button
 		ButtonPlotHandler buttonPlotHandler = new ButtonPlotHandler();
 		buttPlot.addActionListener(buttonPlotHandler);
+		// handle CSV button
+		ButtonCSVHandler buttonCSVHandler = new ButtonCSVHandler();
+		exportButton.addActionListener(buttonCSVHandler);
 	}
 
 	
@@ -317,6 +325,7 @@ public class Gui extends JFrame {
 				buttCluster.setEnabled(!customOpt);
 				buttKNN.setEnabled(!customOpt);
 				buttPlot.setEnabled(customOpt);
+				exportButton.setEnabled(customOpt);
 				maxIterText.setEditable(customOpt);
 				maxIterText.setEnabled(customOpt);
 				maxIterTitle.setEnabled(customOpt);
@@ -355,6 +364,7 @@ public class Gui extends JFrame {
 				maxIterText.setEnabled(customOpt);
 				maxIterTitle.setEnabled(customOpt);
 			}
+			// when down-scale check-box is checked
 			else if(downScaleCB.isSelected()){
 				numTempClusters.setEnabled(customOpt);
 				numTempClustersValue.setEnabled(customOpt);
@@ -366,13 +376,9 @@ public class Gui extends JFrame {
 				numTempClustersValue.setEnabled(!customOpt);
 				numTempClustersValue.setEditable(!customOpt);
 			}
-			else if(event.getSource() == numTempClustersValue){
-				tempClusters = Integer.parseInt(event.getActionCommand());
-				JOptionPane.showMessageDialog(null, "Temporary clusters number successfully inserted");
-			}
 		}
 	}// ############################################################################################################
-	// handle temporary cluster's number insertion
+	// handle max iterations number insertion
 	private class EnterHandleriter implements ActionListener{
 		public void actionPerformed(ActionEvent event){
 			if(event.getSource() == maxIterText){
@@ -390,7 +396,7 @@ public class Gui extends JFrame {
 				tempClusters = Integer.parseInt(event.getActionCommand());
 				if(tempClusters<4){
 					tempClusters = 4;
-					JOptionPane.showMessageDialog(null, "Temporary clusters numberhas to be greater than 4!");
+					JOptionPane.showMessageDialog(null, "Temporary clusters number has to be greater than 4!");
 					numTempClustersValue.setText("4");
 				}else{
 					JOptionPane.showMessageDialog(null, "Temporary clusters number successfully inserted");
@@ -400,7 +406,7 @@ public class Gui extends JFrame {
 		}
 	}
 	// ############################################################################################################
-		// handle default-custom options with radio buttons
+		// handle k-mean initialization options
 		private class KmeanInit implements ItemListener{
 			public void itemStateChanged(ItemEvent event){
 				if(forgybutton.isSelected()){
@@ -422,26 +428,74 @@ public class Gui extends JFrame {
 					FillStates fillings = new FillStates();
 					ArrayList<SystemState> allStates = fillings.getStates(USER, PASS, "measurements");
 					Kmean kmeanTest = new Kmean(allStates, 1e-16, maxIter);
-					Clusters= kmeanTest.kMeanClustering(tempClusters,4,KmeanMethod);
-//					kmeanTest.CSV(Clusters, 4);
-//					System.out.println(Clusters.size());
+					Clusters= kmeanTest.kMeanClustering(tempClusters,clusterNum,KmeanMethod);
+					JPanel clusterPanel = new JPanel();
+					clusterPanel.setPreferredSize(new Dimension((int)(widthScreen*0.91),(int)(heightScreen*0.81)));
 					for(int ii=0; ii<Clusters.size(); ii++){
+						String[][] tableCluster = new String[Clusters.get(ii).size()][Clusters.get(ii).get(0).values().length+1];
 						System.out.println("Cluster number " + (ii+1) + " Cluster size " + Clusters.get(ii).size());
-//						System.out.println(Clusters.get(ii).size());
 						for(int i=0; i<Clusters.get(ii).size(); i++){
-							Clusters.get(ii).get(i).printValues();
-							
+							 tableCluster[i] = Clusters.get(ii).get(i).stringArrayValues();
 						}
+						makeTable(tableCluster,ii,clusterPanel);
 					}
-					buttPlot.setEnabled(true);	
+					JOptionPane.showMessageDialog(null, clusterPanel,"Clusters" , JOptionPane.PLAIN_MESSAGE);
+					buttPlot.setEnabled(true);
+					exportButton.setEnabled(true);
 				}
-				
 			}.start();
-					
+		}
+		
+		// ########################
+		// create Array of columns names
+		public void makeTable(String[][] tableCluster, int clusNum, JPanel clusterPanel){
+		String[] names = new String[tableCluster[0].length];
+		names[0] = "time";
+		for( int i=1; i<tableCluster[0].length; i += 2){
+			names[i] = "ANG_" + (i/2);
+			names[i+1] = "VOL_" + (i/2);
+		}
+		// create table with given matrix and column names
+		JTable Table = new JTable(tableCluster, names );
+		// disable auto-resize
+		Table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		// set Font
+		Table.setFont(new Font("Serif",Font.PLAIN, 22));
+		
+		// set columns' width
+		TableColumn column = null;
+	    for (int i = 0; i < tableCluster[0].length; i++) {
+	        column = Table.getColumnModel().getColumn(i);
+	        column.setPreferredWidth((int)(0.8*widthScreen/18)); 
+	    }  
+	    // set rows' height
+	    Table.setRowHeight((int)(0.8*heightScreen/18));
+	    // create a scroll pane and add the table to it
+		JScrollPane scrollPane = new JScrollPane(Table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setFont(new Font("Serif",Font.PLAIN, 50));
+		// set window size and limits
+		scrollPane.setPreferredSize( new Dimension((int)(0.5*0.8*widthScreen),(int)(0.5*0.7*heightScreen)));
+		// add scroll pane to window
+		if(clusNum==0 || clusNum== 2){
+			JTextField clusterTitle = new JTextField("CLUSTER " + (clusNum+1), (int) (0.5*0.8*widthScreen/15));
+			clusterTitle.setFont(new Font("Serif",Font.BOLD, 18));
+			clusterTitle.setHorizontalAlignment(JTextField.CENTER);
+			clusterTitle.setBackground(Color.GRAY);
+			clusterTitle.setEditable(false);
+			clusterPanel.add(clusterTitle, null);
+			JTextField clusterTitle1 = new JTextField("CLUSTER " + (clusNum+2), (int) (0.5*0.8*widthScreen/15));
+			clusterTitle1.setFont(new Font("Serif",Font.BOLD, 18));
+			clusterTitle1.setHorizontalAlignment(JTextField.CENTER);
+			clusterTitle1.setBackground(Color.GRAY);
+			clusterTitle1.setEditable(false);
+			clusterPanel.add(clusterTitle1, null);
+		}
+		clusterPanel.add(scrollPane, null);
+		
 		}
 	}
 //	 ############################################################################################################
-	// handle Y-Matrix creation button
+	// handle cluster-plot button
 		private class ButtonPlotHandler implements ActionListener{					
 			public void actionPerformed(ActionEvent event){	
 			// Run the main code inside a New Thread (if error occurs - only thread gets killed, and GUI stays operational)
@@ -455,6 +509,18 @@ public class Gui extends JFrame {
 				}.start();
 			}
 		}
+	
+//	############################################################################################################
+	//	handle CSV button
+	private class ButtonCSVHandler implements ActionListener{					
+		public void actionPerformed(ActionEvent event){
+			new Thread(){
+				public void run(){
+			Kmean.CSV(Clusters, clusterNum);
+			JOptionPane.showMessageDialog(null, "Clusters succesfully exported in CSV");
+				}
+			}.start();
+		}
 	}
-
+}
 

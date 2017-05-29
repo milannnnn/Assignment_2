@@ -317,7 +317,7 @@ public class Kmean {
 		
 		// ##################################################################################
 		// export csv
-		public void CSV(ArrayList<ArrayList<SystemState>> Clusters , int k) {
+		public static void CSV(ArrayList<ArrayList<SystemState>> Clusters , int k) {
 	        PrintWriter pw;
 			try {
 				ArrayList<PrintWriter> pwArray = new ArrayList<PrintWriter>();
@@ -342,6 +342,25 @@ public class Kmean {
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				kill();
 			}
 	    }
+		// ############################################################################################################
+		// method to kill the program
+		@SuppressWarnings("deprecation")
+		public static void kill(){
+//			try {
+//				Clip clip = AudioSystem.getClip();
+////				File file = new File("./src/doh.wav");
+////			    AudioInputStream inputStream = AudioSystem.getAudioInputStream(file);
+//			    AudioInputStream inputStream = AudioSystem.getAudioInputStream(Gui.class.getResource("/doh.wav"));
+//			    clip.open(inputStream);
+//			    clip.start(); 
+//			} 
+//			catch (Exception e) {
+//				System.err.println(e.getMessage());
+//			}	
+			System.out.println("\n=> Program Intentionally Terminated (Kill it before it lays eggs!!!)");
+			Thread.currentThread().stop();
+		}
 }
