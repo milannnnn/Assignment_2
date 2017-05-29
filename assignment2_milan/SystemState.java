@@ -225,4 +225,14 @@ public class SystemState {
 		double angle = buses.get(k).angle*(maxAngles[k]-minAngles[k])+minAngles[k];
 		return angle;
 	}
+	
+	public String[] stringArrayValues(){
+		String[] s = new String[buses.size()*2+1];
+		s[0] = "" + time ;
+		for(int k=1; k<s.length; k += 2){
+			s[k] = String.format( "%.2f ", buses.get(k/2).angle);
+			s[k+1]= String.format("%.2f ",buses.get(k/2).voltage);
+		}
+		return s;
+	}
 }

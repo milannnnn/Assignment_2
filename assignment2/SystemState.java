@@ -15,8 +15,11 @@ public class SystemState {
 			angle 	= 0;
 		}
 	}
-	
+	public String label;
 	public int time;
+	
+	// Remember Min and Max Values - to be able to revert to original values (if needed)
+	public double[] minAngles, maxAngles, minVolts, maxVolts;
 
 	public ArrayList<SimpleObject> buses = new ArrayList<SimpleObject>(); // Bus ID, Voltage, Angle
 	
@@ -29,7 +32,7 @@ public class SystemState {
 		// readData[2] - Value column
 		// readData[3] - Bus ID column
 
-		time = Integer.parseInt(readData[1]);
+		this.time = Integer.parseInt(readData[1]);
 		SimpleObject tmpBus = new SimpleObject();
 		tmpBus.busID = readData[3];
 		if(isAngle(readData[0])){
@@ -38,10 +41,16 @@ public class SystemState {
 		else{
 			tmpBus.voltage = Double.parseDouble(readData[2]);
 		}
-		buses.add(tmpBus);
+		this.buses.add(tmpBus);
+
+//		this.minAngles[0]=0;
+//		this.maxAngles[0]=0; 
+//		this.minVolts[0] =0; 
+//		this.maxVolts[0] =0;
 	}
 	
-	//### Add New Data to Current State
+	// ###########################################################
+	// Add New Data to Current State
 	public void addData(String[] readData){
 		// readData[0] - Name column
 		// readData[1] - Time column
@@ -109,17 +118,23 @@ public class SystemState {
 	
 	// ###########################################################
 	// Normalize all State Variables with Min and Max Values
-	public void normalize(double[] minAngles, double[] maxAngles, double[] minVolts, double[] maxVolts){
-		for(int k=0; k<minAngles.length; k++){
-			if(maxAngles[k]!=minAngles[k]){
-				buses.get(k).angle   = (buses.get(k).angle-minAngles[k])/(maxAngles[k]-minAngles[k]);
+	public void normalize(double[] minAngles1, double[] maxAngles1, double[] minVolts1, double[] maxVolts1){
+		// Memorize the Mins and Maxs before normalizing
+		this.minAngles = minAngles1;
+		this.maxAngles = maxAngles1;
+		this.minVolts  = minVolts1;
+		this.maxVolts  = maxVolts1;
+		// Normalize the values
+		for(int k=0; k<minAngles1.length; k++){
+			if(maxAngles1[k]!=minAngles1[k]){
+				buses.get(k).angle   = (buses.get(k).angle-minAngles1[k])/(maxAngles1[k]-minAngles1[k]);
 			}
 			else{
 				buses.get(k).angle = 1;
 			}
 			
-			if(maxAngles[k]!=minAngles[k]){
-				buses.get(k).voltage = (buses.get(k).voltage-minVolts[k])/(maxVolts[k]-minVolts[k]);
+			if(maxAngles1[k]!=minAngles1[k]){
+				buses.get(k).voltage = (buses.get(k).voltage-minVolts1[k])/(maxVolts1[k]-minVolts1[k]);
 			}
 			else{
 				buses.get(k).voltage = 1;
@@ -151,6 +166,8 @@ public class SystemState {
 		System.out.print("\n");
 	}
 	
+	// ###############################################################
+	// Returns the CSV String of State Variables (angles and voltages)
 	public String stringValues(){
 		String s = "";
 		for(int k=0; k<buses.size(); k++){
@@ -164,16 +181,58 @@ public class SystemState {
 		s += "\n";
 		return s;
 	}
+
+	// ###############################################################
+	// Calculates the Complex Voltage Drop Between 2 Buses
+	public double calcComplexVoltDrop(String id1, String id2){
+		int q1=-1, q2=-1;
+		for(int k=0; k<buses.size(); k++){
+			if(buses.get(k).busID.equals(id1)){
+				q1 = k;
+			}
+			if(buses.get(k).busID.equals(id2)){
+				q2 = k;
+			}
+		}
+		if(q1>=0 && q2>=0){
+			double v1, v2, a1, a2, re1, re2, im1, im2, dist;
+			
+			// Revert Back to Original Values (so we can calculate COMPLEX volt drop)
+			v1 = buses.get(q1).voltage*(maxVolts[q1]-minVolts[q1])+minVolts[q1];
+			v2 = buses.get(q2).voltage*(maxVolts[q2]-minVolts[q2])+minVolts[q2];
+			a1 = buses.get(q1).angle*(maxAngles[q1]-minAngles[q1])+minAngles[q1];
+			a2 = buses.get(q2).angle*(maxAngles[q2]-minAngles[q2])+minAngles[q2];
+						
+			re1 = v1*Math.cos(a1*Math.PI/180);
+			re2 = v2*Math.cos(a2*Math.PI/180);
+			im1 = v1*Math.sin(a1*Math.PI/180);
+			im2 = v2*Math.sin(a2*Math.PI/180);
+			
+			dist = Math.sqrt((re1-re2)*(re1-re2) + (im1-im2)*(im1-im2));
+			return dist;
+		}
+		else{
+			return -1;
+		}
+	}
+	
+	public double orgVoltage(int k){
+		double volt = buses.get(k).voltage*(maxVolts[k]-minVolts[k])+minVolts[k];
+		return volt;
+	}
+	
+	public double orgAngle(int k){
+		double angle = buses.get(k).angle*(maxAngles[k]-minAngles[k])+minAngles[k];
+		return angle;
+	}
 	
 	public String[] stringArrayValues(){
 		String[] s = new String[buses.size()*2+1];
 		s[0] = "" + time ;
 		for(int k=1; k<s.length; k += 2){
-//			s[k] = Double.toString(buses.get(k/2).angle);
 			s[k] = String.format( "%.2f ", buses.get(k/2).angle);
 			s[k+1]= String.format("%.2f ",buses.get(k/2).voltage);
 		}
 		return s;
 	}
-	
 }
