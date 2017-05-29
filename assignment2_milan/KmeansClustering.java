@@ -50,10 +50,6 @@ public class KmeansClustering {
 		//### Downscaling to Original Number of Clusters:
 		clusters = downscaleClusters(clusters, kOrg);
 		
-//		for(int j=0; j<clusters.size(); j++){
-//			System.out.print(clusters.get(j).size()+"\t");
-//		}
-		
 		//CSV(clusters,kOrg);
 		
 		return clusters;
