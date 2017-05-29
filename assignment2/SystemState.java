@@ -42,11 +42,6 @@ public class SystemState {
 			tmpBus.voltage = Double.parseDouble(readData[2]);
 		}
 		this.buses.add(tmpBus);
-
-//		this.minAngles[0]=0;
-//		this.maxAngles[0]=0; 
-//		this.minVolts[0] =0; 
-//		this.maxVolts[0] =0;
 	}
 	
 	// ###########################################################
@@ -213,6 +208,15 @@ public class SystemState {
 		}
 		else{
 			return -1;
+		}
+	}
+	
+	// ###############################################################
+	// Renormalize the Input Data (return to original values)
+	public void reNormalize(){
+		for(int k=0; k<buses.size(); k++){
+			buses.get(k).voltage = buses.get(k).voltage*(maxVolts[k] -minVolts[k] )+minVolts[k];
+			buses.get(k).angle   = buses.get(k).angle  *(maxAngles[k]-minAngles[k])+minAngles[k];		
 		}
 	}
 	
