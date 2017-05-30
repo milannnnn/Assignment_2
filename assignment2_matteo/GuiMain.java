@@ -8,7 +8,7 @@ public class GuiMain {
 		Gui GUI = new Gui();
 		GUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// set size and visibility
-		int Mywidth = (int) GUI.widthScreen/2;
+		int Mywidth = (int) (GUI.widthScreen*0.6);
 		int Myheight = (int) (GUI.heightScreen*0.9);
 		GUI.setSize(Mywidth, Myheight);
 		GUI.setResizable(false);

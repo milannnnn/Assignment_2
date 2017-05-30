@@ -85,20 +85,20 @@ public class Gui extends JFrame {
 		if(widthScreen>=1920){
 			widthScreen  = 1920.0;
 			heightScreen = 1080.0;
-			consoleHeight = (int) (0.405*heightScreen);
-			consoleWidth  = (int) (0.495* widthScreen);
+			consoleHeight = (int) (0.407*heightScreen);
+			consoleWidth  = (int) (0.595* widthScreen);
 		}
 		else if(widthScreen==1366){
 			consoleHeight = (int) (0.3*heightScreen);
-			consoleWidth  = (int) (0.495* widthScreen);
+			consoleWidth  = (int) (0.595* widthScreen);
 		}
 		else{
 			consoleHeight = (int) (0.22*heightScreen);
-			consoleWidth  = (int) (0.495* widthScreen);
+			consoleWidth  = (int) (0.595* widthScreen);
 		}
 		
 		// set the width of text fields
-		int textWidth = (int) (widthScreen/2/500*60);
+		int textWidth = (int) (widthScreen*0.6*0.12);
 		
 		// create RADIO BUTTONS and TEXT TITLE
 		// default/ custom radio buttons
@@ -247,7 +247,7 @@ public class Gui extends JFrame {
 		grouplabel.add(generalbutton);
 		
 		// create buttons to execute KNN
-		KNNTitle = new JTextField("KNN SECTION", textWidth);
+		KNNTitle = new JTextField("K-NN SECTION", textWidth);
 		KNNTitle.setFont(new Font("Serif",Font.BOLD, 18));
 		KNNTitle.setHorizontalAlignment(JTextField.CENTER);
 		KNNTitle.setBackground(Color.GRAY);
@@ -430,6 +430,7 @@ public class Gui extends JFrame {
 				numTempClusters.setEnabled(customOpt);
 				numTempClustersValue.setEnabled(customOpt);
 				numTempClustersValue.setEditable(customOpt);
+				tempClusters = Integer.parseInt(numTempClustersValue.getText());
 				
 			}
 			else if(!(downScaleCB.isSelected())){

@@ -287,15 +287,34 @@ public class Kmean {
 		try {
 			ArrayList<PrintWriter> pwArray = new ArrayList<PrintWriter>();
 			for(int i=0; i < k ;i++){
-				String name = "cluster_" + (i+1) + ".csv";
+				String name = "cluster_" + Clusters.get(i).get(0).label + ".csv";
 				pw = new PrintWriter(new File(name));
 				pwArray.add(pw);
 			}
 			
 			for(int ii=0; ii<Clusters.size(); ii++){
 				StringBuilder sb = new StringBuilder();
+				String header = "time,";
+				for(int j=0; j < Clusters.get(ii).get(0).values().length; j++){
+					int mod = j % 2;
+					if(j<Clusters.get(ii).get(0).values().length-1){
+						if(mod==0){
+							header += "ANG_" + ((j/2)+1) + ",";
+						}else{
+							header += "VOL_" + (j/2+1) + ",";
+						}
+					}else{
+						if(mod==0){
+							header += "ANG_" + ((j/2)+1) + ",";
+						}else{
+							header += "VOL_" + (j/2+1) + "\n";
+						}
+					}
+				}
+				sb.append(header);
 				for(int i=0; i<Clusters.get(ii).size(); i++){
-					sb.append(Clusters.get(ii).get(i).stringValues());
+					String line = Clusters.get(ii).get(i).time + ","  + Clusters.get(ii).get(i).stringValues() ;
+					sb.append(line);
 				}
 				pw = pwArray.get(ii);
 				pw.write(sb.toString());
