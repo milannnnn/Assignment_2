@@ -1,4 +1,4 @@
-package assignment2_matteo;
+package assignment2_milan;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
