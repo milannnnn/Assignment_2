@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Label {
 	
 	// ############################################################################################################
-	// Declare Cluster Operating-State Labels for the Specific System (assigned topology)
+	// Method for Declaring Cluster Operating-State Labels for the Specific System (obtained by topology analysis)
 	public void declareLabelsSpecific(ArrayList<ArrayList<SystemState>> Clusters) {
 		
 		//### Declare Generator Pair Buses
@@ -96,7 +96,7 @@ public class Label {
 	}
 
 	// ############################################################################################################
-	// Declare Cluster Operating-State Labels for General System (label rule abstracted from specific case)
+	// Method for Declaring Cluster Operating-State Labels for General System (label rule abstracted from specific case)
 	public void declareLabelsGeneral(ArrayList<ArrayList<SystemState>> Clusters){
 		
 		//### Calculate Average State Voltages and Angles for the System

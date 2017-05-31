@@ -2,7 +2,7 @@ package assignment2;
 
 import java.util.ArrayList;
 
-// ### SIMPLE Object Container Class - for Power System State Representation
+// ### Object Container Class - for Power System State Representation with Additional Data Manipulation Methods
 public class SystemState {
 	
 	class SimpleObject{
@@ -15,10 +15,11 @@ public class SystemState {
 			angle 	= 0;
 		}
 	}
+	
 	public String label;
 	public int time;
 	
-	// Remember Min and Max Values - to be able to revert to original values (if needed)
+	//### Save Min and Max Values - to be able to revert to original values (if needed)
 	public double[] minAngles, maxAngles, minVolts, maxVolts;
 
 	public ArrayList<SimpleObject> buses = new ArrayList<SimpleObject>(); // Bus ID, Voltage, Angle
@@ -220,16 +221,22 @@ public class SystemState {
 		}
 	}
 	
+	// ###############################################################
+	// Return the Original Voltage (unnormalized)
 	public double orgVoltage(int k){
 		double volt = buses.get(k).voltage*(maxVolts[k]-minVolts[k])+minVolts[k];
 		return volt;
 	}
 	
+	// ###############################################################
+	// Return the Original Angle (unnormalized)
 	public double orgAngle(int k){
 		double angle = buses.get(k).angle*(maxAngles[k]-minAngles[k])+minAngles[k];
 		return angle;
 	}
 	
+	// ###############################################################
+	// Merge Time and State Values to a String Array
 	public String[] stringArrayValues(){
 		String[] s = new String[buses.size()*2+1];
 		s[0] = "" + time ;
