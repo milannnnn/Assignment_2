@@ -7,9 +7,9 @@ import java.util.*;
 
 public class KNNmethod {
 
-	public static ArrayList<String> KNN(int k, ArrayList<SystemState> testList, ArrayList<SystemState> learnList, int numLabels ){
+	public static ArrayList<String[]> KNN(int k, ArrayList<SystemState> testList, ArrayList<SystemState> learnList, int numLabels ){
 		// ArrayList of labels for each SystemState
-		ArrayList<String> labels = new ArrayList<String>();
+		ArrayList<String[]> labels = new ArrayList<String[]>();
 		// loop through each SystemState
 		for(SystemState tempSystemState : testList){
 			// extract values
@@ -17,8 +17,8 @@ public class KNNmethod {
 			// create list of K closest neighbors 
 			ArrayList<Result> NeighborsList = createNeighborList(query, learnList, k);
 			// find the most common label within the neighbors
-			String label = sortState( NeighborsList, query, numLabels);
-			labels.add(label);
+			String[] labelPro = sortState( NeighborsList, query, numLabels);
+			labels.add(labelPro);
 		}
 		return labels;
 	}
@@ -61,7 +61,8 @@ public class KNNmethod {
 	 
 	//##################################################################################
 	// determine the label of the System State
-	 private static String  sortState(ArrayList<Result> NeighborsList, double[] query, int numLabels){
+	 private static String[]  sortState(ArrayList<Result> NeighborsList, double[] query, int numLabels){
+		 String probability;
 		 String label = "";
 		 double[] labelArray = new double[numLabels];
 		 String[] labelLabel = {"High Load","Low Load","Generator Outage","Line Outage"};
@@ -83,6 +84,9 @@ public class KNNmethod {
 				 maxIndex = i;
 			 }
 		 }
+		 // calculate probability
+		 probability = 	String.format("%.2f ",100*maxValue/NeighborsList.size());
+		 
 		 // check if the solution is unique
 		 int nonUniqueness = 0;
 		 for(int i=0; i<labelArray.length; i++){
@@ -96,7 +100,8 @@ public class KNNmethod {
 		 
 		 // create labeled SystemState
 		 label = labelLabel[maxIndex];
-		 return label;
+		 String[] labelPro = {label,probability};
+		 return labelPro;
 	 }
 }
 

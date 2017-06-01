@@ -503,9 +503,9 @@ public class Gui extends JFrame {
 				if(event.getSource() == neighborsNumText){
 					try{
 						neighborNum = Integer.parseInt(event.getActionCommand());
-						if(neighborNum < 2){
-							neighborNum = 2;
-							JOptionPane.showMessageDialog(null, "Neighbors number has to be at least 2!");
+						if(neighborNum < 1){
+							neighborNum = 1;
+							JOptionPane.showMessageDialog(null, "Neighbors number has to be at least 1!");
 							neighborsNumText.setText("1");
 						}else if(neighborNum>100){
 							neighborNum = 100;
@@ -664,17 +664,17 @@ public class Gui extends JFrame {
 						testSet.get(i).normalize(learnSet.get(0).minAngles, learnSet.get(0).maxAngles, learnSet.get(0).minVolts, learnSet.get(0).maxVolts);
 						
 					}
-					ArrayList<String> labels = KNNmethod.KNN( neighborNum,  testSet, learnSet, clusterNum );
+					ArrayList<String[]> labelPros = KNNmethod.KNN( neighborNum,  testSet, learnSet, clusterNum );
 					ArrayList<ArrayList<SystemState>> testCluters= new ArrayList<ArrayList<SystemState>>();
 					for(int k=0; k<clusterNum; k++){
 						testCluters.add(new ArrayList<SystemState>());
 					}
 					String[] labelLabel = {"High Load","Low Load","Generator Outage","Line Outage"};
-					for(int i=0; i<labels.size(); i++){
-						System.out.println("measurement # " + (i+1) + " belongs to cluster " + labels.get(i));
-						testSet.get(i).label = labels.get(i);
+					for(int i=0; i<labelPros.size(); i++){
+						System.out.println("measurement # " + (i+1) + " belongs to cluster " + labelPros.get(i)[0]+ " (probability = "+labelPros.get(i)[1]+" %)");
+						testSet.get(i).label = labelPros.get(i)[0];
 						for(int j=0; j<labelLabel.length; j++){
-							if(labelLabel[j].equals(labels.get(i))){
+							if(labelLabel[j].equals(labelPros.get(i)[0])){
 								testCluters.get(j).add(testSet.get(i));
 							}
 						}

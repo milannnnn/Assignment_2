@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Kmean {
-	
-	// SystemList has to be an ArrayList of Objects
-	// replace double[] with object
+	// SystemList is an ArrayList, where each element is a SystemState
+	// tol is the tolerance when checking the distance between centroids of two different iterations
+	// maxiter is the maximum  allowed number of iterations
 	public static ArrayList<SystemState> SystemList;
 	public static double tol ;
 	public static int maxIter ;
@@ -20,30 +20,33 @@ public class Kmean {
 		Kmean.tol = tol;
 		Kmean.maxIter = maxIter;
 	}
-	
 	// ##################################################################################
-	
+	// INPUTS:
+		// k: the number of clusters to use
+		// kOrg: the number of cluters to return as output
+	// when up-scaling is applied we run the k-mean algorithm considering k clusters and 
+	// at the end we down-scale the clusters to kOrg
 	public ArrayList<ArrayList<SystemState>> kMeanClustering(int k, int kOrg, String initMethod) {
 			
-			// arbitrarily assign centroids from within the dataset
-			// create an arrayList of clusters, which are arraylists of SystemState
+			// create an arrayList of clusters, which are ArrayList of SystemState
 			ArrayList<ArrayList<SystemState>> Clusters = new ArrayList<ArrayList<SystemState>>();
 			
 			for(int i=0; i<k;i++){
 				Clusters.add(new ArrayList<SystemState>());
 			}
 
-			// create initial centroid using forgy method
+			// create initial centroid using either forgy or RPM method
 			ArrayList<double[]> Centroid = new ArrayList<double[]>();
 			if(initMethod.equals("RPM")){
 				Centroid =  RPM(k);
 			}else{
 				Centroid =  forgy(k);
 			}
-			
+			// boolean value used in while loop
 			boolean check = true;
 			// to count the iteration
 			int keepTime = 0;
+			
 			// start the loop
 			while(check){
 				keepTime++;
@@ -51,10 +54,9 @@ public class Kmean {
 					// assigned cluster
 					int assignedClusterIndex = 0; 
 					double minDistance = 1e9;
-					// extract values of ii-th state
-					// ######
+					// extract values of ii-th SystemState
 					double[] values = SystemList.get(ii).values();
-					// ######
+					// ## in this loop we determine to which centroid the studied SystemState  is closer
 					// i is the number of the cluster
 					for(int i=0; i<k; i++ ){
 						// calculate distance of each value from the centroids
@@ -71,22 +73,25 @@ public class Kmean {
 				// deal with empty clusters
 				Clusters = fillIt( Clusters, k);
 				
-				// calculate the new centroids
+				// calculate the new centroids from given clusters
 				ArrayList<double[]> newCentroid = calCentroids(Clusters);
-				// calculate distance old and new centroid
+				// set check to false to break the loop 
 				check = false;
+				// calculate distance old and new centroid for each cluster
 				for(int i=0; i<k; i++){
 					double delta = EuDistance( Centroid.get(i), newCentroid.get(i));
+					// if at least one distance is bigger than the tolerance and 
+					// the number of iterations is smaller than the max value, check is set to true and the while loop goes on
 					if(delta > tol && keepTime < maxIter){
 						check=true;
-						// clear values
+						// clear clusters
 						clear(Clusters);
 					}
 				}
+				// new centroids become the centroids used in the next iteration
 				Centroid= newCentroid;
-				// if difference is less than a specified tolerance clustering is done
 			}
-			
+			// the clusters are down-scaled to the requested number (kOrg)
 			Clusters = downscaleClusters(Clusters, kOrg);
 			if(kOrg < k){
 			System.out.println("Up-scaling successfully applied!");
@@ -115,7 +120,6 @@ public class Kmean {
 		}
 		return Clusters;
 	}
-	
 	// ##################################################################################
 	// clear list
 	public void clear(ArrayList<ArrayList<SystemState>> Clusters){
@@ -141,9 +145,7 @@ public class Kmean {
 			// take the number in that position from the bowl
 			int ranNum = bowl.get(ranNumindex);
 			// add the ranNum number element to centroid
-			// ######
 			double[] newValueSet = SystemList.get(ranNum).values();
-			// ######
 			Centroid.add(newValueSet);
 			// remove the number from the bowl
 			bowl.remove(ranNumindex);
@@ -185,7 +187,6 @@ public class Kmean {
 		System.out.println("Successfully initialized with random partition method!");
 		return Centroid;
 	}
-	
 	// ##################################################################################
 	// calculate new centroids
 	private static  ArrayList<double[]> calCentroids(ArrayList<ArrayList<SystemState>> Clusters){
@@ -199,7 +200,6 @@ public class Kmean {
 		}
 		return Centroid;
 	}
-		
 	// ##################################################################################
 	// calculate euclidian distance
 	public static double EuDistance(double[] X1, double[] X2){
@@ -212,15 +212,11 @@ public class Kmean {
 		return distance;
 	}
 	// ##################################################################################
-	// calculate the average value of the cluster formed by the ArrayList values
+	// calculate the average value of the cluster 
 	private static double[] MeanOneCluster(ArrayList<SystemState> clusterElements){
-		// #####
 		double[] mean = new double[clusterElements.get(0).values().length];
-		// ######
 		for(int i=0; i<clusterElements.size();i++){
-			// #####
 			double[] newValues = clusterElements.get(i).values();
-			// #####
 			mean = ArraySum(newValues,mean,'+');
 		}
 		for(int i=0; i<mean.length;i++){
@@ -228,7 +224,6 @@ public class Kmean {
 		}
 		return mean;
 	}
-	
 	// ##################################################################################
 	// perform the sum between two arrays
 	private static double[] ArraySum(double[] A1, double[] A2, char sign){
@@ -246,7 +241,6 @@ public class Kmean {
 			return result;
 		}
 	}
-	
 	// ##################################################################################
 	//  down scale clusters
 	private static ArrayList<ArrayList<SystemState>> downscaleClusters(ArrayList<ArrayList<SystemState>> clusters, int n){
