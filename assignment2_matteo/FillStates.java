@@ -2,23 +2,23 @@ package assignment2_matteo;
 
 import java.util.ArrayList;
 
-//import javax.sound.sampled.AudioInputStream;
-//import javax.sound.sampled.AudioSystem;
-//import javax.sound.sampled.Clip;
-
-
-// TODO - Normalize Read Data
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
 public class FillStates {
-	//### Extracts the System States from SQL Database, Sorts and Normalizes them, and return them in an ArrayList 
+	
+	// #######################################################################################################
+	// Method to Extract (from SQL), Sort and Normalize System State Data (returns ArrayList of System States)  
 	public ArrayList<SystemState> getStates(String user, String pass, String tableName){
 		
-		//SQLprinter newPrinter = new SQLprinter("root","Callandor14");
+		//### Read Data from SQL Table
 		SQLprinter newPrinter = new SQLprinter(user,pass);
 		String[] colName = {"name","time","value","sub_rdfid"};
 		String[][] resData = newPrinter.readTable(tableName, colName);
 		newPrinter.exit();
 		
+		//### Push the Data into SystemState objects
 		ArrayList<SystemState> allStates = new ArrayList<SystemState>();
 		for(int k=0; k<resData.length; k++){
 			int tmpTime = Integer.parseInt(resData[k][1]);
@@ -38,19 +38,6 @@ public class FillStates {
 			else{
 				allStates.get(pos).addData(resData[k]);
 			}
-		}
-				
-		//### Printing Out for Debugging:
-		for(int k=0; k<allStates.size(); k++){
-//			if(allStates.get(k).time==1){
-//				for(int j=0; j<allStates.get(k).buses.size(); j++){
-//					System.out.print(allStates.get(k).buses.get(j).voltage+"\t");
-//					System.out.print(allStates.get(k).buses.get(j).angle+"\t");
-//					System.out.println(allStates.get(k).buses.get(j).busID);
-//				}
-//			}
-//			System.out.println(allStates.get(k).time);
-//			System.out.println(allStates.get(k).buses.size());
 		}
 		
 		//### Check the Number of States Found:
@@ -82,9 +69,6 @@ public class FillStates {
 		for(int k=1; k<allStates.size(); k++){
 			allStates.get(k).sortBuses(busOrder);
 		}
-//		for(int k=0; k<allStates.size(); k++){
-//			System.out.println(allStates.get(k).buses.get(1).busID);
-//		}
 		
 		//### Normalize the Data:
 		
@@ -112,7 +96,7 @@ public class FillStates {
 			}
 		}
 
-		// Normalize All States
+		//### Normalize All States
 		for(int k=0; k<allStates.size(); k++){
 			allStates.get(k).normalize(minAngles, maxAngles, minVolts, maxVolts);
 		}
@@ -121,18 +105,16 @@ public class FillStates {
 	}
 	
 	@SuppressWarnings("deprecation")
-	private void terminateProgram(){
-//		try {
-//			Clip clip = AudioSystem.getClip();
-////			File file = new File("./src/doh.wav");
-////		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(file);
-//		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(Gui.class.getResource("/doh.wav"));
-//		    clip.open(inputStream);
-//		    clip.start(); 
-//		} 
-//		catch (Exception e) {
-//			System.err.println(e.getMessage());
-//		}	
+	public static void terminateProgram(){
+		try {
+			Clip clip = AudioSystem.getClip();
+		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(Gui.class.getResource("/doh.wav"));
+		    clip.open(inputStream);
+		    clip.start(); 
+		} 
+		catch (Exception e) {
+			System.err.println(e.getMessage());
+		}	
 		System.out.println("\n=> Program Intentionally Terminated (Kill it before it lays eggs!!!)");
 		Thread.currentThread().stop();
 	}

@@ -318,8 +318,10 @@ public class Kmean {
 	        System.out.println("CSV created!");
 			
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
+			System.out.println("Problem occured while writing the CSV file, please check writing permissions and try again!!!");
+			FillStates.terminateProgram();
+			// e.printStackTrace();
 		}
     }
 }

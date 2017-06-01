@@ -6,10 +6,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
 
-import org.jfree.ui.RefineryUtilities;
+//import org.jfree.ui.RefineryUtilities;
 
 import assignment2.SystemState;
-import assignment2_matteo.PlotClusters;
+//import assignment2_matteo.PlotClusters;
 
 public class Kmean {
 	

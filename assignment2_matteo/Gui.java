@@ -10,6 +10,9 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 
@@ -449,6 +452,7 @@ public class Gui extends JFrame {
 					maxIter = Integer.parseInt(event.getActionCommand());
 					JOptionPane.showMessageDialog(null, "Maximum iteration successfully inserted");
 				}catch(NumberFormatException ex){ 
+					playSound();
 					JOptionPane.showMessageDialog(null, "Maximum iteration has to be a number!");
 					maxIterText.setText("100");
 					maxIter = 100;
@@ -465,10 +469,12 @@ public class Gui extends JFrame {
 				try{
 					tempClusters = Integer.parseInt(event.getActionCommand());
 					if(tempClusters<4){
+						playSound();
 						tempClusters = 4;
 						JOptionPane.showMessageDialog(null, "Temporary clusters number has to be greater or equal to 4!");
 						numTempClustersValue.setText("4");
 					}else if(tempClusters>100){
+						playSound();
 						tempClusters = 100;
 						JOptionPane.showMessageDialog(null, "Temporary clusters cannot be greater than 100!");
 						numTempClustersValue.setText("100");
@@ -477,6 +483,7 @@ public class Gui extends JFrame {
 						JOptionPane.showMessageDialog(null, "Temporary clusters number successfully inserted");
 					}
 				}catch(NumberFormatException ex){ 
+					playSound();
 					JOptionPane.showMessageDialog(null, "Temporary clusters number has to be a number!");
 					numTempClustersValue.setText("16");
 					tempClusters = 16;
@@ -504,10 +511,12 @@ public class Gui extends JFrame {
 					try{
 						neighborNum = Integer.parseInt(event.getActionCommand());
 						if(neighborNum < 1){
+							playSound();
 							neighborNum = 1;
 							JOptionPane.showMessageDialog(null, "Neighbors number has to be at least 1!");
 							neighborsNumText.setText("1");
 						}else if(neighborNum>100){
+							playSound();
 							neighborNum = 100;
 							JOptionPane.showMessageDialog(null, "Neighbors number cannot be greater than 100!");
 							neighborsNumText.setText("100");
@@ -516,6 +525,7 @@ public class Gui extends JFrame {
 							JOptionPane.showMessageDialog(null, "Neighbors number successfully inserted");
 						}
 					}catch(NumberFormatException ex){ 
+						playSound();
 						JOptionPane.showMessageDialog(null, "Neighbors number has to be a number!");
 						neighborNum = 6;
 						neighborsNumText.setText("6");
@@ -697,6 +707,20 @@ public class Gui extends JFrame {
 			else if(generalbutton.isSelected()){
 				labelingGen = true;
 			}
+		}
+	}
+	
+	// ############################################################################################################
+	// DOH... (no explanation needed)
+	private void playSound(){
+		try {
+			Clip clip = AudioSystem.getClip();
+		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(Gui.class.getResource("/doh.wav"));
+		    clip.open(inputStream);
+		    clip.start(); 
+		} 
+		catch (Exception e) {
+			System.err.println(e.getMessage());
 		}
 	}
 }

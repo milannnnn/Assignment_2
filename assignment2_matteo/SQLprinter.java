@@ -2,9 +2,9 @@ package assignment2_matteo;
 
 import java.sql.*;
 //import java.util.ArrayList;
-//import javax.sound.sampled.AudioInputStream;
-//import javax.sound.sampled.AudioSystem;
-//import javax.sound.sampled.Clip;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
 // It initializes a DataBase called "assignment_1_MMMM", 
 // It adds a table to the DB using the method insertTable, declaring PRIMARY and FOREIGN KEYs
@@ -146,17 +146,15 @@ public class SQLprinter {
 	// method to kill the program
 	@SuppressWarnings("deprecation")
 	public static void kill(){
-//		try {
-//			Clip clip = AudioSystem.getClip();
-////			File file = new File("./src/doh.wav");
-////		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(file);
-//		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(Gui.class.getResource("/doh.wav"));
-//		    clip.open(inputStream);
-//		    clip.start(); 
-//		} 
-//		catch (Exception e) {
-//			System.err.println(e.getMessage());
-//		}	
+		try {
+			Clip clip = AudioSystem.getClip();
+		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(Gui.class.getResource("/doh.wav"));
+		    clip.open(inputStream);
+		    clip.start(); 
+		} 
+		catch (Exception e) {
+			System.err.println(e.getMessage());
+		}	
 		System.out.println("\n=> Program Intentionally Terminated (Kill it before it lays eggs!!!)");
 		Thread.currentThread().stop();
 	}

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Label {
 	
 	// ############################################################################################################
-	// 
+	// Method for Declaring Cluster Operating-State Labels for the Specific System (obtained by topology analysis)
 	public void declareLabelsSpecific(ArrayList<ArrayList<SystemState>> Clusters) {
 		
 		//### Declare Generator Pair Buses
@@ -96,7 +96,7 @@ public class Label {
 	}
 
 	// ############################################################################################################
-	// 	
+	// Method for Declaring Cluster Operating-State Labels for General System (label rule abstracted from specific case)
 	public void declareLabelsGeneral(ArrayList<ArrayList<SystemState>> Clusters){
 		
 		//### Calculate Average State Voltages and Angles for the System
@@ -152,7 +152,7 @@ public class Label {
 	}
 
 	// ############################################################################################################
-	// 	
+	// Method for Computing Cluster Generator Outage Indicators
 	private double[] analyzeGenOutage(ArrayList<ArrayList<SystemState>> Clusters, String[][] genPairs){
 		double[] clusGenDiff = new double[Clusters.size()];
 		
@@ -180,7 +180,7 @@ public class Label {
 	}
 
 	// ############################################################################################################
-	// 
+	// Method for Computing Cluster Line Outage Indicators
 	private double[] analyzeLineOutage(ArrayList<ArrayList<SystemState>> Clusters, String[][] linePairs){
 		double[] clusGenDiff = new double[Clusters.size()];
 		
@@ -208,7 +208,7 @@ public class Label {
 	}
 	
 	// ############################################################################################################
-	// 
+	// Method for Calculating Complex Mean State-Average Voltage and Angle of a Cluster
 	private double[][] calcComplexAverages(ArrayList<ArrayList<SystemState>> Clusters){
 		double[][] avg = new double[Clusters.size()][2];
 		
@@ -233,7 +233,7 @@ public class Label {
 	}
 
 	// ############################################################################################################
-	// 
+	// Method for Calculating Normalized Mean State-Average Voltage and Angle of a Cluster
 	private double[][] calcAverages(ArrayList<ArrayList<SystemState>> Clusters){
 		double[][] avg = new double[Clusters.size()][2];
 		
