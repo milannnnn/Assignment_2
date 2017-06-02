@@ -2,14 +2,23 @@ package assignment2_matteo;
 
 import java.util.*;
 
-//import assignment2.SystemState;
-
+// Given a learn list, a test list, the number of neighbors to consider and the number of possible labels,
+// the algorithm allows to classify each element of the test list (assigning a label) using the information gained 
+// from the learn list.
+// Along with the label, also the probability that the state belongs to the assigned cluster is estimated 
 
 public class KNNmethod {
-
+	
+	// INPUTS:
+		// k: number of neighbors to consider
+		// testList: list of system states to classify
+		// learnList: list of system states classified with k-mean
+		// numLabels: number of clusters
+	// OUTPUTS:
+		// labelPros: list of label and probability for each state
 	public static ArrayList<String[]> KNN(int k, ArrayList<SystemState> testList, ArrayList<SystemState> learnList, int numLabels ){
-		// ArrayList of labels for each SystemState
-		ArrayList<String[]> labels = new ArrayList<String[]>();
+		// ArrayList of labels and probabilities for each SystemState
+		ArrayList<String[]> labelPros = new ArrayList<String[]>();
 		// loop through each SystemState
 		for(SystemState tempSystemState : testList){
 			// extract values
@@ -18,11 +27,10 @@ public class KNNmethod {
 			ArrayList<Result> NeighborsList = createNeighborList(query, learnList, k);
 			// find the most common label within the neighbors
 			String[] labelPro = sortState( NeighborsList, query, numLabels);
-			labels.add(labelPro);
+			labelPros.add(labelPro);
 		}
-		return labels;
+		return labelPros;
 	}
-	
 	// ##################################################################################
 	// euclidean distance
 	 private static double EuDistance(double[] X1, double[] X2){
@@ -37,36 +45,30 @@ public class KNNmethod {
 	//##################################################################################
 	// create neighborList
 	 private static ArrayList<Result> createNeighborList(double[] query, ArrayList<SystemState> learnList, int k){
-		
 		ArrayList<Result> NeighborsList = new ArrayList<Result>();
 		ArrayList<Result> resultList = new ArrayList<Result>();
-			
 		for(SystemState newSystemState : learnList){
-					
-			// calculate variable dist – square of Euclidean distance from query measurements to flower’s dimensional parameters
+			// calculate distance from the given values (query) and each element in the learn list
 			double distance = EuDistance(query, newSystemState.values());
-			// replace null with label of the state
+			// for each element of the learn list we save the label and the distance from query
 			resultList.add(new Result(distance, newSystemState.label));
 		}
-		
-//		sort the results from closest to further
+		// sort the results from closest to further
 		Collections.sort(resultList, new DistanceComparator());
-		
+		// take the closest k neighbors from resultList
 		for(int i=0; i<k; i++){
 			NeighborsList.add(resultList.get(i));
 		}
-		
 		return NeighborsList;
 	 }
-	 
 	//##################################################################################
-	// determine the label of the System State
+	// determine the label of the System State looking at the most common label in the neighborhood
 	 private static String[]  sortState(ArrayList<Result> NeighborsList, double[] query, int numLabels){
 		 String probability;
 		 String label = "";
 		 double[] labelArray = new double[numLabels];
 		 String[] labelLabel = {"High Load","Low Load","Generator Outage","Line Outage"};
-		 // counts how many System States belong to each cluster
+		 // count how many System States belong to each cluster
 		 for(Result neighbor : NeighborsList){
 			 label = neighbor.label;
 			 for(int i=0; i<numLabels; i++){
@@ -84,7 +86,8 @@ public class KNNmethod {
 				 maxIndex = i;
 			 }
 		 }
-		 // calculate probability
+		 // calculate probability as the ratio between the number of elements of the main cluster of the neighborhood
+		 // and the total dimension of the neighborhood
 		 probability = 	String.format("%.2f ",100*maxValue/NeighborsList.size());
 		 
 		 // check if the solution is unique
@@ -104,6 +107,3 @@ public class KNNmethod {
 		 return labelPro;
 	 }
 }
-
-
-
