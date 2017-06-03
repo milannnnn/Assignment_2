@@ -245,16 +245,18 @@ public class Kmean {
 			return result;
 		}
 	}
-	// ##################################################################################
-	//  down scale clusters
+	// ################################################################################################################
+	// Down scale clusters - Start Merging Closest Clusters together until we reach the desired number of clusters (n)
 	private static ArrayList<ArrayList<SystemState>> downscaleClusters(ArrayList<ArrayList<SystemState>> clusters, int n){
 		ArrayList<ArrayList<SystemState>> tmpClusters = new ArrayList<ArrayList<SystemState>>();
 		tmpClusters.addAll(clusters);
 		ArrayList<double[]> centroids = calCentroids(tmpClusters);
 		
+		//### Until we reach the desired size, start merging closest clusters
 		while(tmpClusters.size()>n){
 			double minDist = 0, tmpDist = 0;
 			int q1=0, q2=0;
+			//### Find two closest clusters (q1 and q2)
 			for(int k=0; k<tmpClusters.size(); k++){
 				for(int j=k+1; j<tmpClusters.size(); j++){
 					tmpDist = EuDistance(centroids.get(k), centroids.get(j));
@@ -272,8 +274,11 @@ public class Kmean {
 					}
 				}
 			}
+			//### Add all states from q2 to q1
 			tmpClusters.get(q1).addAll(tmpClusters.get(q2));
+			//### Kill cluster q2
 			tmpClusters.remove(q2);
+			//### Recalculate New Centroids
 			centroids = calCentroids(tmpClusters);
 		}
 		return tmpClusters;
