@@ -5,11 +5,11 @@ import java.util.ArrayList;
 // ### Object Container Class - for Power System State Representation with Additional Data Manipulation Methods
 public class SystemState {
 	
-	class SimpleObject{
+	class BusObject{
 		public String busID;
 		public double voltage;
 		public double angle;
-		public SimpleObject(){
+		public BusObject(){
 			busID 	= "";
 			voltage = 0;
 			angle 	= 0;
@@ -22,7 +22,7 @@ public class SystemState {
 	//### Save Min and Max Values - to be able to revert to original values (if needed)
 	public double[] minAngles, maxAngles, minVolts, maxVolts;
 
-	public ArrayList<SimpleObject> buses = new ArrayList<SimpleObject>(); // Bus ID, Voltage, Angle
+	public ArrayList<BusObject> buses = new ArrayList<BusObject>(); // Bus ID, Voltage, Angle
 	
 	// ###########################################################
 	// Initialize a New System State
@@ -34,7 +34,7 @@ public class SystemState {
 		// readData[3] - Bus ID column
 
 		this.time = Integer.parseInt(readData[1]);
-		SimpleObject tmpBus = new SimpleObject();
+		BusObject tmpBus = new BusObject();
 		tmpBus.busID = readData[3];
 		if(isAngle(readData[0])){
 			tmpBus.angle = Double.parseDouble(readData[2]);
@@ -64,7 +64,7 @@ public class SystemState {
 		
 		//### If we have not found a matching bus, add a new one
 		if(pos==-1){
-			SimpleObject tmpBus = new SimpleObject();
+			BusObject tmpBus = new BusObject();
 			tmpBus.busID = readData[3];
 			if(isAngle(readData[0])){
 				tmpBus.angle = Double.parseDouble(readData[2]);
@@ -98,7 +98,7 @@ public class SystemState {
 	// ###############################################################################################
 	// Sorts Buses in Given Order of Appearance, and Eliminates all Buses Not Included in Sorting List
 	public void sortBuses(String[] busOrder){
-		ArrayList<SimpleObject> tmpBuses = new ArrayList<SimpleObject>();
+		ArrayList<BusObject> tmpBuses = new ArrayList<BusObject>();
 		for(int k=0; k<busOrder.length; k++){
 			for(int j=0; j<buses.size(); j++){
 				if(busOrder[k].equals(buses.get(j).busID)){

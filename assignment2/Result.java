@@ -1,4 +1,4 @@
-package assignment2_matteo;
+package assignment2;
 
 public class Result {
 	String label;

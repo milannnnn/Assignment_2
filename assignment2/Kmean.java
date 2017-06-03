@@ -6,15 +6,14 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
 
-//import org.jfree.ui.RefineryUtilities;
-
-import assignment2.SystemState;
-//import assignment2_matteo.PlotClusters;
+// Given a set of measurements, the algorithm separates them in the required number of clusters applying the k-mean method
+// The first centroids can be determined either using the fory method or the RPM
+// up-scaling can be applied (a larger number of clusters is used and then reduced to the required number)
 
 public class Kmean {
-	
-	// SystemList has to be an ArrayList of Objects
-	// replace double[] with object
+	// SystemList is an ArrayList, where each element is a SystemState
+	// tol is the tolerance when checking the distance between centroids of two different iterations
+	// maxiter is the maximum  allowed number of iterations
 	public static ArrayList<SystemState> SystemList;
 	public static double tol ;
 	public static int maxIter ;
@@ -25,31 +24,33 @@ public class Kmean {
 		Kmean.tol = tol;
 		Kmean.maxIter = maxIter;
 	}
-	
-	
 	// ##################################################################################
-	
+	// INPUTS:
+		// k: the number of clusters to use
+		// kOrg: the number of cluters to return as output
+	// when up-scaling is applied we run the k-mean algorithm considering k clusters and 
+	// at the end we down-scale the clusters to kOrg
 	public ArrayList<ArrayList<SystemState>> kMeanClustering(int k, int kOrg, String initMethod) {
 			
-			// arbitrarily assign centroids from within the dataset
-			// create an arrayList of clusters, which are arraylists of SystemState
+			// create an arrayList of clusters, which are ArrayList of SystemState
 			ArrayList<ArrayList<SystemState>> Clusters = new ArrayList<ArrayList<SystemState>>();
 			
 			for(int i=0; i<k;i++){
 				Clusters.add(new ArrayList<SystemState>());
 			}
 
-			// create initial centroid using forgy method
+			// create initial centroid using either forgy or RPM method
 			ArrayList<double[]> Centroid = new ArrayList<double[]>();
 			if(initMethod.equals("RPM")){
 				Centroid =  RPM(k);
 			}else{
 				Centroid =  forgy(k);
 			}
-			
+			// boolean value used in while loop
 			boolean check = true;
 			// to count the iteration
 			int keepTime = 0;
+			
 			// start the loop
 			while(check){
 				keepTime++;
@@ -57,11 +58,9 @@ public class Kmean {
 					// assigned cluster
 					int assignedClusterIndex = 0; 
 					double minDistance = 1e9;
-					// extract values of ii-th state
-					// ######
+					// extract values of ii-th SystemState
 					double[] values = SystemList.get(ii).values();
-//					double[] values = new double[18];
-					// ######
+					// ## in this loop we determine to which centroid the studied SystemState  is closer
 					// i is the number of the cluster
 					for(int i=0; i<k; i++ ){
 						// calculate distance of each value from the centroids
@@ -78,42 +77,30 @@ public class Kmean {
 				// deal with empty clusters
 				Clusters = fillIt( Clusters, k);
 				
-//				// plot 
-//				String titlePlot = "Clusters plot iter# " + keepTime;
-//				final PlotClusters demo = new PlotClusters(titlePlot,Clusters);
-//			    demo.pack();
-//			    RefineryUtilities.centerFrameOnScreen(demo);
-//			    demo.setVisible(true);
-				
-				// calculate the new centroids
+				// calculate the new centroids from given clusters
 				ArrayList<double[]> newCentroid = calCentroids(Clusters);
-				// calculate distance old and new centroid
+				// set check to false to break the loop 
 				check = false;
+				// calculate distance old and new centroid for each cluster
 				for(int i=0; i<k; i++){
 					double delta = EuDistance( Centroid.get(i), newCentroid.get(i));
-//					System.out.println("Delta cluster " + (i+1) + " " + delta );
+					// if at least one distance is bigger than the tolerance and 
+					// the number of iterations is smaller than the max value, check is set to true and the while loop goes on
 					if(delta > tol && keepTime < maxIter){
 						check=true;
-						// clear values
+						// clear clusters
 						clear(Clusters);
 					}
 				}
+				// new centroids become the centroids used in the next iteration
 				Centroid= newCentroid;
-				// if difference is less than a specified tolerance clustering is done
-//			System.out.println(" iterations: " + keepTime);
 			}
-			System.out.println(" iterations: " + keepTime);
+			// the clusters are down-scaled to the requested number (kOrg)
 			Clusters = downscaleClusters(Clusters, kOrg);
 			if(kOrg < k){
-				System.out.println("Downscaling successfully applied!");
+			System.out.println("Up-scaling successfully applied!");
 			}
-//			// plot after down scaling
-//			String titlePlot = "Clusters plot iter# " + keepTime;
-//			final PlotClusters demo = new PlotClusters(titlePlot,Clusters);
-//		    demo.pack();
-//		    RefineryUtilities.centerFrameOnScreen(demo);
-//		    demo.setVisible(true);
-			
+			System.out.println("Total number of iterations: " + keepTime);
 			return Clusters;
 		}
 	// ##################################################################################
@@ -137,7 +124,6 @@ public class Kmean {
 		}
 		return Clusters;
 	}
-	
 	// ##################################################################################
 	// clear list
 	public void clear(ArrayList<ArrayList<SystemState>> Clusters){
@@ -163,10 +149,7 @@ public class Kmean {
 			// take the number in that position from the bowl
 			int ranNum = bowl.get(ranNumindex);
 			// add the ranNum number element to centroid
-			// ######
 			double[] newValueSet = SystemList.get(ranNum).values();
-			// ######
-//			double[] newValueSet = new double[18];
 			Centroid.add(newValueSet);
 			// remove the number from the bowl
 			bowl.remove(ranNumindex);
@@ -192,8 +175,6 @@ public class Kmean {
 		Random rand = new Random();
 		for(int i=0; i<SystemList.size();i++){
 			int  ranNumindex = rand.nextInt(bowl.size());
-//			System.out.println("random element index " + ranNumindex);
-//			int  ranNClusindex = rand.nextInt(k);
 			int  ranNClusindex = 0 ;
 			for(int ii=0; ii<k; ii++){
 				if(i <= (SystemList.size()/(k) + SystemList.size()/(k)*ii)){
@@ -201,24 +182,15 @@ public class Kmean {
 					break;
 				}
 			}
-//			System.out.println("random cluster index " + ranNClusindex);
 			// insert the ranNumindex element from SystemList to the ranNClusindex Cluster
 			Clusters.get(ranNClusindex).add(SystemList.get(ranNumindex));
 			bowl.remove(ranNumindex);
 		}
 		
 		Centroid = calCentroids(Clusters);
-//		for(int i=0; i < Centroid.size(); i++ ){
-//			System.out.println("Centroid # " + i);
-//			for(int ii=0; ii<Centroid.get(i).length;ii++){
-//				System.out.print( Centroid.get(i)[ii] + " ");
-//			}
-//			System.out.println();
-//		}
 		System.out.println("Successfully initialized with random partition method!");
 		return Centroid;
 	}
-	
 	// ##################################################################################
 	// calculate new centroids
 	private static  ArrayList<double[]> calCentroids(ArrayList<ArrayList<SystemState>> Clusters){
@@ -232,7 +204,6 @@ public class Kmean {
 		}
 		return Centroid;
 	}
-		
 	// ##################################################################################
 	// calculate euclidian distance
 	public static double EuDistance(double[] X1, double[] X2){
@@ -245,124 +216,121 @@ public class Kmean {
 		return distance;
 	}
 	// ##################################################################################
-	// calculate the average value of the cluster formed by the ArrayList values
-		private static double[] MeanOneCluster(ArrayList<SystemState> clusterElements){
-			// #####
-			double[] mean = new double[clusterElements.get(0).values().length];
-			// ######
-			for(int i=0; i<clusterElements.size();i++){
-				// #####
-				double[] newValues = clusterElements.get(i).values();
-				// #####
-//				double[] newValues = new double[18];
-				mean = ArraySum(newValues,mean,'+');
-			}
-			for(int i=0; i<mean.length;i++){
-				mean[i] = mean[i]/clusterElements.size();
-			}
-			return mean;
+	// calculate the average value of the cluster 
+	private static double[] MeanOneCluster(ArrayList<SystemState> clusterElements){
+		double[] mean = new double[clusterElements.get(0).values().length];
+		for(int i=0; i<clusterElements.size();i++){
+			double[] newValues = clusterElements.get(i).values();
+			mean = ArraySum(newValues,mean,'+');
 		}
-		
+		for(int i=0; i<mean.length;i++){
+			mean[i] = mean[i]/clusterElements.size();
+		}
+		return mean;
+	}
 	// ##################################################################################
 	// perform the sum between two arrays
-		private static double[] ArraySum(double[] A1, double[] A2, char sign){
-			if(sign=='-'){
-				double[] result = new double[A1.length]; 
-				for(int i=0; i<A1.length;i++){
-					result[i] = A1[i] - A2[i];
-				}
-				return result;
-			}else{
-				double[] result = new double[A1.length]; 
-				for(int i=0; i<A1.length;i++){
-					result[i] = A1[i] + A2[i];
-				}
-				return result;
+	private static double[] ArraySum(double[] A1, double[] A2, char sign){
+		if(sign=='-'){
+			double[] result = new double[A1.length]; 
+			for(int i=0; i<A1.length;i++){
+				result[i] = A1[i] - A2[i];
 			}
+			return result;
+		}else{
+			double[] result = new double[A1.length]; 
+			for(int i=0; i<A1.length;i++){
+				result[i] = A1[i] + A2[i];
+			}
+			return result;
 		}
+	}
+	// ################################################################################################################
+	// Down scale clusters - Start Merging Closest Clusters together until we reach the desired number of clusters (n)
+	private static ArrayList<ArrayList<SystemState>> downscaleClusters(ArrayList<ArrayList<SystemState>> clusters, int n){
+		ArrayList<ArrayList<SystemState>> tmpClusters = new ArrayList<ArrayList<SystemState>>();
+		tmpClusters.addAll(clusters);
+		ArrayList<double[]> centroids = calCentroids(tmpClusters);
 		
-		// ##################################################################################
-		//  down scale clusters
-		private static ArrayList<ArrayList<SystemState>> downscaleClusters(ArrayList<ArrayList<SystemState>> clusters, int n){
-			ArrayList<ArrayList<SystemState>> tmpClusters = new ArrayList<ArrayList<SystemState>>();
-			tmpClusters.addAll(clusters);
-			ArrayList<double[]> centroids = calCentroids(tmpClusters);
-			
-			while(tmpClusters.size()>n){
-				double minDist = 0, tmpDist = 0;
-				int q1=0, q2=0;
-				for(int k=0; k<tmpClusters.size(); k++){
-					for(int j=k+1; j<tmpClusters.size(); j++){
-						tmpDist = EuDistance(centroids.get(k), centroids.get(j));
-						if(k==0 && j==1){
+		//### Until we reach the desired size, start merging closest clusters
+		while(tmpClusters.size()>n){
+			double minDist = 0, tmpDist = 0;
+			int q1=0, q2=0;
+			//### Find two closest clusters (q1 and q2)
+			for(int k=0; k<tmpClusters.size(); k++){
+				for(int j=k+1; j<tmpClusters.size(); j++){
+					tmpDist = EuDistance(centroids.get(k), centroids.get(j));
+					if(k==0 && j==1){
+						minDist = tmpDist;
+						q1 = k;
+						q2 = j;
+					}
+					else{
+						if(tmpDist<minDist){
 							minDist = tmpDist;
 							q1 = k;
 							q2 = j;
 						}
-						else{
-							if(tmpDist<minDist){
-								minDist = tmpDist;
-								q1 = k;
-								q2 = j;
-							}
+					}
+				}
+			}
+			//### Add all states from q2 to q1
+			tmpClusters.get(q1).addAll(tmpClusters.get(q2));
+			//### Kill cluster q2
+			tmpClusters.remove(q2);
+			//### Recalculate New Centroids
+			centroids = calCentroids(tmpClusters);
+		}
+		return tmpClusters;
+	}
+	// ##################################################################################
+	// export csv
+	public static void CSV(ArrayList<ArrayList<SystemState>> Clusters , int k) {
+        PrintWriter pw;
+		try {
+			ArrayList<PrintWriter> pwArray = new ArrayList<PrintWriter>();
+			for(int i=0; i < k ;i++){
+				String name = "cluster_" + Clusters.get(i).get(0).label + ".csv";
+				pw = new PrintWriter(new File(name));
+				pwArray.add(pw);
+			}
+			
+			for(int ii=0; ii<Clusters.size(); ii++){
+				StringBuilder sb = new StringBuilder();
+				String header = "time,";
+				for(int j=0; j < Clusters.get(ii).get(0).values().length; j++){
+					int mod = j % 2;
+					if(j<Clusters.get(ii).get(0).values().length-1){
+						if(mod==0){
+							header += "ANG_" + ((j/2)+1) + ",";
+						}else{
+							header += "VOL_" + (j/2+1) + ",";
+						}
+					}else{
+						if(mod==0){
+							header += "ANG_" + ((j/2)+1) + ",";
+						}else{
+							header += "VOL_" + (j/2+1) + "\n";
 						}
 					}
 				}
-				tmpClusters.get(q1).addAll(tmpClusters.get(q2));
-				tmpClusters.remove(q2);
-				centroids = calCentroids(tmpClusters);
-			}
-			return tmpClusters;
-		}
-		
-		
-		
-		// ##################################################################################
-		// export csv
-		public static void CSV(ArrayList<ArrayList<SystemState>> Clusters , int k) {
-	        PrintWriter pw;
-			try {
-				ArrayList<PrintWriter> pwArray = new ArrayList<PrintWriter>();
-				for(int i=0; i < k ;i++){
-					String name = "cluster_" + (i+1) + ".csv";
-					pw = new PrintWriter(new File(name));
-					pwArray.add(pw);
+				sb.append(header);
+				for(int i=0; i<Clusters.get(ii).size(); i++){
+					String line = Clusters.get(ii).get(i).time + ","  + Clusters.get(ii).get(i).stringValues() ;
+					sb.append(line);
 				}
-				
-				for(int ii=0; ii<Clusters.size(); ii++){
-					StringBuilder sb = new StringBuilder();
-					for(int i=0; i<Clusters.get(ii).size(); i++){
-						sb.append(Clusters.get(ii).get(i).stringValues());
-					}
-					pw = pwArray.get(ii);
-					pw.write(sb.toString());
-			        pw.close();
-				}
-	
-		        System.out.println("CSV created!");
-				
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				kill();
+				pw = pwArray.get(ii);
+				pw.write(sb.toString());
+		        pw.close();
 			}
-	    }
-		// ############################################################################################################
-		// method to kill the program
-		@SuppressWarnings("deprecation")
-		public static void kill(){
-//			try {
-//				Clip clip = AudioSystem.getClip();
-////				File file = new File("./src/doh.wav");
-////			    AudioInputStream inputStream = AudioSystem.getAudioInputStream(file);
-//			    AudioInputStream inputStream = AudioSystem.getAudioInputStream(Gui.class.getResource("/doh.wav"));
-//			    clip.open(inputStream);
-//			    clip.start(); 
-//			} 
-//			catch (Exception e) {
-//				System.err.println(e.getMessage());
-//			}	
-			System.out.println("\n=> Program Intentionally Terminated (Kill it before it lays eggs!!!)");
-			Thread.currentThread().stop();
+
+	        System.out.println("CSV created!");
+			
+		} catch (FileNotFoundException e) {
+			
+			System.out.println("Problem occured while writing the CSV file, please check writing permissions and try again!!!");
+			FillStates.terminateProgram();
+			// e.printStackTrace();
 		}
+    }
 }

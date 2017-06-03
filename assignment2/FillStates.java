@@ -1,10 +1,11 @@
 package assignment2;
 
 import java.util.ArrayList;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
-//import javax.sound.sampled.AudioInputStream;
-//import javax.sound.sampled.AudioSystem;
-//import javax.sound.sampled.Clip;
+// Class for 
 
 public class FillStates {
 	
@@ -105,18 +106,16 @@ public class FillStates {
 	}
 	
 	@SuppressWarnings("deprecation")
-	private void terminateProgram(){
-//		try {
-//			Clip clip = AudioSystem.getClip();
-////			File file = new File("./src/doh.wav");
-////		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(file);
-//		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(Gui.class.getResource("/doh.wav"));
-//		    clip.open(inputStream);
-//		    clip.start(); 
-//		} 
-//		catch (Exception e) {
-//			System.err.println(e.getMessage());
-//		}	
+	public static void terminateProgram(){
+		try {
+			Clip clip = AudioSystem.getClip();
+		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(Gui.class.getResource("/doh.wav"));
+		    clip.open(inputStream);
+		    clip.start(); 
+		} 
+		catch (Exception e) {
+			System.err.println(e.getMessage());
+		}	
 		System.out.println("\n=> Program Intentionally Terminated (Kill it before it lays eggs!!!)");
 		Thread.currentThread().stop();
 	}

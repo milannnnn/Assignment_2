@@ -2,14 +2,13 @@ package assignment2;
 
 import java.sql.*;
 //import java.util.ArrayList;
-//import javax.sound.sampled.AudioInputStream;
-//import javax.sound.sampled.AudioSystem;
-//import javax.sound.sampled.Clip;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
-// It initializes a DataBase called "assignment_1_MMMM", 
-// It adds a table to the DB using the method insertTable, declaring PRIMARY and FOREIGN KEYs
-// It adds data to a certain table using the method insertData
-// It updates data using the method upDate
+// It connects to a DataBase called "subtables", 
+// It reads the specified table's columns and returns the results as a matrix of String
+// it allows to print out the read information
 // It handles SQL and general exceptions
 
 public class SQLprinter {
@@ -22,7 +21,6 @@ public class SQLprinter {
 	public static String dataBaseName = "subtables";
 	public static Connection conn;
 	public static Statement stmt;
-	
 	// ############################################################################################################
 	// constructor to initialize the database
 	// Inputs:
@@ -41,13 +39,9 @@ public class SQLprinter {
 			// Open a connection
 			System.out.println("Connecting to database...");
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
-			// Execute a query to create database
-//			System.out.println("Creating database...");
 			stmt = conn.createStatement();
 			// remove restriction to be able to look for names too, instead of IDs only
 			stmt.executeUpdate("SET SQL_SAFE_UPDATES = 0");
-//			// Connect to the created database 
-//			conn = DriverManager.getConnection(DB_URL + dataBaseName, USER, PASS);
 			
 		}
 		catch(SQLException se){
@@ -62,18 +56,19 @@ public class SQLprinter {
 			kill();
 		}
 	}
-	
 	// ############################################################################################################
 	// default constructor with default user and password
 	public SQLprinter(){
 		this("root","root");
 	}
-	
 	// ############################################################################################################
 	// method to read a table
+	// it reads the specified columns (columnNames) of the specified table (tableName) and returns the result as matrix of String
 	// INPUTS:
 		// tableName: name of the table
 		// columnNames: name of the columns as String Array
+	// OUTPUT:
+		// tabDataRes: matrix of String with read data
 	public String[][] readTable(String tableName, String[] columnNames){
 		String[][] tabDataRes = null;
 		try{
@@ -114,7 +109,6 @@ public class SQLprinter {
 		}
 		return tabDataRes;	
 	}
-
 	// ############################################################################################################
 	// print table
 	public void printRes(String[][] tabDataRes, String[] columnNames){
@@ -129,7 +123,6 @@ public class SQLprinter {
 			System.out.println();
 		}
 	}
-	
 	// ############################################################################################################
 	// close connection with database
 	public void exit(){
@@ -141,26 +134,21 @@ public class SQLprinter {
 			kill();
 		}
 	}
-	
 	// ############################################################################################################
 	// method to kill the program
 	@SuppressWarnings("deprecation")
 	public static void kill(){
-//		try {
-//			Clip clip = AudioSystem.getClip();
-////			File file = new File("./src/doh.wav");
-////		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(file);
-//		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(Gui.class.getResource("/doh.wav"));
-//		    clip.open(inputStream);
-//		    clip.start(); 
-//		} 
-//		catch (Exception e) {
-//			System.err.println(e.getMessage());
-//		}	
+		try {
+			Clip clip = AudioSystem.getClip();
+		    AudioInputStream inputStream = AudioSystem.getAudioInputStream(Gui.class.getResource("/doh.wav"));
+		    clip.open(inputStream);
+		    clip.start(); 
+		} 
+		catch (Exception e) {
+			System.err.println(e.getMessage());
+		}	
 		System.out.println("\n=> Program Intentionally Terminated (Kill it before it lays eggs!!!)");
 		Thread.currentThread().stop();
 	}
-	
 }
-
 
