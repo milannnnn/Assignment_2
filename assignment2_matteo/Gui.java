@@ -251,7 +251,7 @@ public class Gui extends JFrame {
 		exportButton.setEnabled(false);
 		add(exportButton);
 		// create radio buttons to choose labeling method
-		topologybutton = new JRadioButton("Topology based labeling", true);
+		topologybutton = new JRadioButton("System specific labeling", true);
 		topologybutton.setFont(new Font("Serif",Font.BOLD, 18));
 		topologybutton.setEnabled(false);
 		generalbutton = new JRadioButton("General labeling", false);
