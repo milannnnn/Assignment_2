@@ -16,16 +16,18 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-
+// Plot the average angle vs the average voltage for each system state of each cluster
+// 2 external libraries need to be downloaded  
 
 @SuppressWarnings("serial")
 public class PlotClusters extends Frame {
 	public PlotClusters(final String title, ArrayList<ArrayList<SystemState>> Clusters) {
 	    super(title);
-	    // legend
 	    final XYSeriesCollection data = new XYSeriesCollection();
+	    // each cluster is treated as a XYSeries in order to have different colors and symbols for each cluster
 	    for(int i=0; i<Clusters.size(); i++){
 	    	if(!Clusters.get(i).isEmpty()){
+	    		// create the legend
 		    	String namePlot = "Cluster " + Clusters.get(i).get(0).label;
 			    final XYSeries series = new XYSeries(namePlot);
 			    ArrayList<SystemState> newCluster = Clusters.get(i);
@@ -33,7 +35,8 @@ public class PlotClusters extends Frame {
 			    data.addSeries(series);
 	    	}
 	    }
-	   
+	    // create the graph as a scatter plot
+	    // set labels for the axes
 		final JFreeChart chart = ChartFactory.createScatterPlot(
 	        title,
 	        "average state angle", 
@@ -44,19 +47,22 @@ public class PlotClusters extends Frame {
 	        true,
 	        false
 	    );
+		// customize plot's aspect
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		double widthScreen = screenSize.getWidth();
 		double heightScreen = screenSize.getHeight();
-		chart.getPlot().setBackgroundPaint( Color.WHITE );
+		chart.getPlot().setBackgroundPaint(Color.WHITE);
 		chart.getXYPlot().setDomainGridlinesVisible(true);
 		chart.getXYPlot().setRangeGridlinePaint(Color.GRAY);
 		chart.getXYPlot().setDomainGridlinePaint(Color.GRAY);
 	    final ChartPanel chartPanel = new ChartPanel(chart);
 	    chartPanel.setPreferredSize(new java.awt.Dimension( (int) (widthScreen*0.6), (int) (heightScreen*0.6)));
+	    // insert the graph in JPane message dialog
 	    JOptionPane.showMessageDialog(null, chartPanel, "", JOptionPane.PLAIN_MESSAGE);
 	}
 	// ##################################################################################
-	// mean voltage and angle one cluster
+	// calculate mean voltage and angle of one cluster
+	// add the calculated values to the XYseries
 	private static void meanOneCluster(ArrayList<SystemState> newCluster, XYSeries series){
 		ArrayList<Double> meanVOneCluster = new ArrayList<Double>();
 		ArrayList<Double> meanAngOneCluster = new ArrayList<Double>();
